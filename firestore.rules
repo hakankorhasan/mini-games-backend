@@ -1,0 +1,37 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users: anyone can read profile, owner can update safe fields only
+    match /users/{userId} {
+      allow read: if true;
+
+      // Client can only update username and country
+      // Rating, tier, seasonRating, gamesPlayed, correctAnswers are server-only
+      allow update: if request.auth.uid == userId
+                    && !request.resource.data.diff(resource.data).affectedKeys()
+                        .hasAny(['rating', 'tier', 'seasonRating', 'gamesPlayed', 'correctAnswers']);
+
+      // User docs are created by Cloud Function (createUser trigger)
+      allow create: if false;
+      allow delete: if false;
+    }
+
+    // Per-game stats: only owner can read, Cloud Functions write
+    match /users/{userId}/gameStats/{gameId} {
+      allow read: if request.auth.uid == userId;
+      allow write: if false;
+    }
+
+    // Match results: no client access (anti-cheat log)
+    match /matchResults/{docId} {
+      allow read, write: if false;
+    }
+
+    // Seasons: public read, server-only write
+    match /seasons/{seasonId} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}
