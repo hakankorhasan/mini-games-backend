@@ -27,6 +27,20 @@
                     "order": "DESCENDING"
                 }
             ]
+        },
+        {
+            "collectionGroup": "gameStories",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "gameType",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "order",
+                    "order": "ASCENDING"
+                }
+            ]
         }
     ],
     "fieldOverrides": []
