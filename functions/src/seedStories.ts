@@ -8,10 +8,11 @@ import { GameStory } from "./types/storyTypes";
  * Looks for files matching patterns like:
  *   story_assets/{storyId}/cover.*
  *   story_assets/{storyId}/level_1_artifact.*
- *   story_assets/{storyId}/level_2_artifact.*  etc.
+ *   story_assets/{storyId}/level_1_event_2_artifact.*  etc.
  *
  * Any file in the folder with "cover" in its name → coverImageURL
- * Any file with "level_X" or "level X" or just "X" → artifactImageURL for that level
+ * Any file with "level_X" → artifactImageURL for that level's first event
+ * Any file with "level_X_event_Y" → artifactImageURL for that level's Y-th event
  */
 // Storage folder name mapping (in case folder names differ from story IDs)
 const storageFolderMap: Record<string, string> = {
@@ -49,20 +50,36 @@ async function resolveImageURLs(story: GameStory): Promise<GameStory> {
             continue;
         }
 
-        // Check if it matches a level artifact
-        // Supports patterns: level_1, level_2, level1, 1_artifact, etc.
+        // Check if it matches a level artifact (and optionally an event)
         for (let i = 0; i < resolved.levels.length; i++) {
             const levelOrder = resolved.levels[i].order;
-            const patterns = [
+            const levelPatterns = [
                 `level_${levelOrder}`,
                 `level${levelOrder}`,
                 `level ${levelOrder}`,
             ];
 
-            if (patterns.some(p => fileName.includes(p)) ||
+            const matchesLevel = levelPatterns.some(p => fileName.includes(p)) ||
                 fileName.startsWith(`${levelOrder}_`) ||
-                fileName.startsWith(`${levelOrder}.`)) {
-                resolved.levels[i].artifactImageURL = publicUrl;
+                fileName.startsWith(`${levelOrder}.`);
+
+            if (matchesLevel) {
+                // Check if it targets a specific event: level_1_event_2
+                const eventMatch = fileName.match(/event[_\s]?(\d+)/);
+                if (eventMatch) {
+                    const eventOrder = parseInt(eventMatch[1], 10);
+                    const eventIdx = resolved.levels[i].events.findIndex(
+                        e => e.order === eventOrder
+                    );
+                    if (eventIdx >= 0) {
+                        resolved.levels[i].events[eventIdx].artifactImageURL = publicUrl;
+                    }
+                } else {
+                    // Default: assign to first event of this level
+                    if (resolved.levels[i].events.length > 0) {
+                        resolved.levels[i].events[0].artifactImageURL = publicUrl;
+                    }
+                }
                 break;
             }
         }

@@ -45,5 +45,11 @@ service cloud.firestore {
       allow read: if true;
       allow write: if false;
     }
+
+    // Story Progress: device-id based, no auth required
+    // Cloud Functions handle read/write; rules allow direct access too
+    match /storyProgress/{deviceId}/stories/{storyId} {
+      allow read, write: if true;
+    }
   }
 }

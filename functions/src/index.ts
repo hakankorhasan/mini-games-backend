@@ -11,3 +11,4 @@ export { resetSeasonScheduled, resetSeasonManual } from "./resetSeason";
 export { seedStories } from "./seedStories";
 export { seedGames } from "./seedGames";
 export { uploadImage } from "./uploadImage";
+export { saveStoryProgress, getStoryProgress } from "./storyProgress";
