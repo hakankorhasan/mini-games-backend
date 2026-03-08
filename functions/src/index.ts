@@ -9,3 +9,5 @@ export { createUser } from "./createUser";
 export { getLeaderboard } from "./getLeaderboard";
 export { resetSeasonScheduled, resetSeasonManual } from "./resetSeason";
 export { seedStories } from "./seedStories";
+export { seedGames } from "./seedGames";
+export { uploadImage } from "./uploadImage";

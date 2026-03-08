@@ -1,41 +1,112 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import { allStories } from "./data/storyData";
+import { GameStory } from "./types/storyTypes";
+
+/**
+ * Resolves image URLs from Firebase Storage for a given story.
+ * Looks for files matching patterns like:
+ *   story_assets/{storyId}/cover.*
+ *   story_assets/{storyId}/level_1_artifact.*
+ *   story_assets/{storyId}/level_2_artifact.*  etc.
+ *
+ * Any file in the folder with "cover" in its name → coverImageURL
+ * Any file with "level_X" or "level X" or just "X" → artifactImageURL for that level
+ */
+// Storage folder name mapping (in case folder names differ from story IDs)
+const storageFolderMap: Record<string, string> = {
+    "nl_story_01": "n1_story_01",
+    "nl_story_02": "n1_story_02",
+};
+
+async function resolveImageURLs(story: GameStory): Promise<GameStory> {
+    const bucket = admin.storage().bucket();
+    const folderName = storageFolderMap[story.id] || story.id;
+    const prefix = `story_assets/${folderName}/`;
+
+    const [files] = await bucket.getFiles({ prefix });
+
+    // Clone the story so we don't mutate the original
+    const resolved: GameStory = JSON.parse(JSON.stringify(story));
+
+    for (const file of files) {
+        // Skip "folders" (files ending with /)
+        if (file.name.endsWith("/")) continue;
+
+        const fileName = file.name.replace(prefix, "").toLowerCase();
+
+        // Make file publicly accessible and get URL
+        try {
+            await file.makePublic();
+        } catch (_e) {
+            // May already be public
+        }
+        const publicUrl = `https://storage.googleapis.com/${bucket.name}/${file.name}`;
+
+        // Check if it's a cover image
+        if (fileName.includes("cover")) {
+            resolved.coverImageURL = publicUrl;
+            continue;
+        }
+
+        // Check if it matches a level artifact
+        // Supports patterns: level_1, level_2, level1, 1_artifact, etc.
+        for (let i = 0; i < resolved.levels.length; i++) {
+            const levelOrder = resolved.levels[i].order;
+            const patterns = [
+                `level_${levelOrder}`,
+                `level${levelOrder}`,
+                `level ${levelOrder}`,
+            ];
+
+            if (patterns.some(p => fileName.includes(p)) ||
+                fileName.startsWith(`${levelOrder}_`) ||
+                fileName.startsWith(`${levelOrder}.`)) {
+                resolved.levels[i].artifactImageURL = publicUrl;
+                break;
+            }
+        }
+    }
+
+    return resolved;
+}
 
 /**
  * seedStories
  *
- * One-shot HTTPS callable function that batch-writes all story
- * documents into the `gameStories` Firestore collection.
- *
- * Call once from Firebase Console or via HTTP to populate the data.
- * Subsequent calls will overwrite existing documents (idempotent).
- *
- * Returns: { success: true, count: number }
+ * HTTP endpoint that:
+ * 1. Reads story data from code
+ * 2. Auto-discovers images from Firebase Storage (story_assets/{storyId}/...)
+ * 3. Attaches image URLs to the story data
+ * 4. Batch-writes everything to Firestore
+ * 5. Returns the full story data with resolved URLs
  */
-export const seedStories = functions.https.onCall(
-    async (_data: unknown, context: functions.https.CallableContext) => {
-        // Optional: restrict to admin users only
-        // if (!context.auth) {
-        //     throw new functions.https.HttpsError(
-        //         "unauthenticated",
-        //         "Authentication required."
-        //     );
-        // }
-
+export const seedStories = functions.https.onRequest(async (_req, res) => {
+    try {
         const db = admin.firestore();
         const batch = db.batch();
 
+        // Resolve image URLs for each story
+        const resolvedStories: GameStory[] = [];
         for (const story of allStories) {
+            const resolved = await resolveImageURLs(story);
+            resolvedStories.push(resolved);
+        }
+
+        // Write to Firestore
+        for (const story of resolvedStories) {
             const ref = db.collection("gameStories").doc(story.id);
             batch.set(ref, story);
         }
 
         await batch.commit();
 
-        return {
+        res.status(200).json({
             success: true,
-            count: allStories.length,
-        };
+            stories: resolvedStories,
+        });
+    } catch (error) {
+        functions.logger.error("seedStories failed", error);
+        res.status(500).json({ success: false, error: String(error) });
     }
-);
+});

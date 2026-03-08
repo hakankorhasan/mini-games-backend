@@ -34,8 +34,8 @@ firestore/
 interface GameStory {
   id: string;                       // document ID ile aynı
   gameType: string;                 // "neuralLink" | "pixelExcavation"
-  title: string;                    // "Kayıp Anılar"
-  subtitle: string;                 // "Travma sonrası hafıza onarımı"
+  title: string;                    // "Lost Memories"
+  subtitle: string;                 // "Post-trauma memory repair"
   icon: string;                     // SF Symbol: "brain.head.profile"
   coverImageURL: string | null;     // Firebase Storage URL
   themeColors: string[];            // ["#00E5FF", "#AA00FF"]
@@ -45,8 +45,8 @@ interface GameStory {
 
 interface StoryLevel {
   order: number;                    // 1, 2, 3, 4, 5
-  title: string;                    // "İlk Sinyal"
-  subtitle: string;                 // "Prefrontal Korteks"
+  title: string;                    // "First Signal"
+  subtitle: string;                 // "Prefrontal Cortex"
 
   // Grid config
   gridSize: number;                 // 5, 6, 7, 8, 9...
@@ -162,8 +162,8 @@ match /gameStories/{storyId} {
 {
   "id": "nl_story_01",
   "gameType": "neuralLink",
-  "title": "Kayıp Anılar",
-  "subtitle": "Travma sonrası hafıza onarımı",
+  "title": "Lost Memories",
+  "subtitle": "Post-trauma memory repair",
   "icon": "brain.head.profile",
   "coverImageURL": null,
   "themeColors": ["#00E5FF", "#AA00FF"],
@@ -171,8 +171,8 @@ match /gameStories/{storyId} {
   "levels": [
     {
       "order": 1,
-      "title": "İlk Sinyal",
-      "subtitle": "Prefrontal Korteks",
+      "title": "First Signal",
+      "subtitle": "Prefrontal Cortex",
       "gridSize": 5,
       "flowCount": 3,
       "deadNeuronCount": 0,
@@ -182,8 +182,8 @@ match /gameStories/{storyId} {
         "Proceed carefully."
       ],
       "endTitle": "Memory Fragment Recovered",
-      "endMessage": "Sinir bağlantısı yeniden kuruldu.",
-      "artifactText": "\"Bir çocuğun gülüşü… tanıdık ama uzak.\"",
+      "endMessage": "Neural connection successfully restored.",
+      "artifactText": "\"A child's laughter… familiar yet distant.\"",
       "artifactImageURL": null
     }
   ]

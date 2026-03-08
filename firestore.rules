@@ -39,5 +39,11 @@ service cloud.firestore {
       allow read: if true;
       allow write: if false;
     }
+
+    // Games: all clients can read the game list, only Admin SDK can write
+    match /games/{gameId} {
+      allow read: if true;
+      allow write: if false;
+    }
   }
 }
