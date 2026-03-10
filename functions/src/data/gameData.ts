@@ -87,4 +87,13 @@ export const allGames: Game[] = [
         requiresPro: false,
         order: 9,
     },
+    {
+        id: "galacticBeacons",
+        name: "Galactic Beacons",
+        subtitle: "Star Battle bulmaca",
+        gameType: ".galacticBeacons",
+        hasStoryMode: false,
+        requiresPro: false,
+        order: 10,
+    },
 ];
