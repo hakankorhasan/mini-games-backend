@@ -87,11 +87,20 @@ export const allGames: Game[] = [
         requiresPro: false,
         order: 9,
     },
-    {
+     {
         id: "galacticBeacons",
         name: "Galactic Beacons",
         subtitle: "Star Battle bulmaca",
         gameType: ".galacticBeacons",
+        hasStoryMode: true,
+        requiresPro: false,
+        order: 9,
+    },
+    {
+        id: "numberCircuit",
+        name: "Number Circuit",
+        subtitle: "Connect numbers. Build equations. Reach the target.",
+        gameType: ".numberCircuit",
         hasStoryMode: false,
         requiresPro: false,
         order: 10,

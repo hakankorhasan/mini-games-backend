@@ -46,6 +46,12 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Number Circuit Daily: all clients can read, only Admin SDK can write
+    match /numberCircuitDaily/{date} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     // Story Progress: device-id based, no auth required
     // Cloud Functions handle read/write; rules allow direct access too
     match /storyProgress/{deviceId}/stories/{storyId} {

@@ -12,3 +12,7 @@ export { seedStories } from "./seedStories";
 export { seedGames } from "./seedGames";
 export { uploadImage } from "./uploadImage";
 export { saveStoryProgress, getStoryProgress } from "./storyProgress";
+export { submitScore } from "./submitScore";
+export { getPlayerLeaderboard } from "./getPlayerLeaderboard";
+export { getPlayerStats } from "./getPlayerStats";
+export { getDailyChallenge } from "./numberCircuitDaily";
