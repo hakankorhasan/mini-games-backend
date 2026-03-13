@@ -142,7 +142,50 @@ Oyuncu "Ali" → Laser Puzzle Level 3 bitirir → skor: 200
 
 ---
 
-## Endpoint'ler
+## Endpoint URL'leri
+
+| # | Endpoint | Method | URL |
+|---|---|---|---|
+| 1 | Oyun Listesi | GET | `https://us-central1-mini-games-9a4e1.cloudfunctions.net/getGameList` |
+| 2 | Skor Gönder | POST | `https://us-central1-mini-games-9a4e1.cloudfunctions.net/submitGameResult` |
+| 3 | Oyun Leaderboard | GET | `https://us-central1-mini-games-9a4e1.cloudfunctions.net/getGameLeaderboard` |
+| 4 | Genel Leaderboard | GET | `https://us-central1-mini-games-9a4e1.cloudfunctions.net/getGlobalLeaderboard` |
+| 5 | Oyuncu Detay | GET | `https://us-central1-mini-games-9a4e1.cloudfunctions.net/getPlayerGameScores` |
+
+---
+
+## Endpoint Detayları
+
+### 0️⃣ Oyun Listesi — `GET /getGameList`
+
+Tüm oyunları katsayılarıyla birlikte döner. Chip listesi için kullanılır.
+
+**Request:**
+```
+GET /getGameList
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "games": [
+        { "id": "hiddenPair", "name": "Hidden Pair", "coefficient": 0.8 },
+        { "id": "pipeConnect", "name": "Pipe Connect", "coefficient": 1.0 },
+        { "id": "blockFit", "name": "Block Fit", "coefficient": 1.0 },
+        { "id": "laserPuzzle", "name": "Laser Puzzle", "coefficient": 1.2 },
+        { "id": "numberCircuit", "name": "Number Circuit", "coefficient": 1.2 },
+        { "id": "binaryPuzzle", "name": "Binary Puzzle", "coefficient": 1.3 },
+        { "id": "neuralLink", "name": "Neural Link", "coefficient": 1.3 },
+        { "id": "cryptoCage", "name": "Crypto-Cage", "coefficient": 1.4 },
+        { "id": "pixelExcavation", "name": "Pixel Excavation", "coefficient": 1.5 },
+        { "id": "slitherlink", "name": "Slitherlink", "coefficient": 1.5 },
+        { "id": "galacticBeacons", "name": "Galactic Beacons", "coefficient": 1.5 }
+    ]
+}
+```
+
+---
 
 ### 1️⃣ Skor Gönder — `POST /submitGameResult`
 

@@ -18,6 +18,7 @@ export { getPlayerStats } from "./getPlayerStats";
 export { getDailyChallenge } from "./numberCircuitDaily";
 export { getGlobalLeaderboard } from "./getGlobalLeaderboard";
 export { getGameLeaderboard } from "./getGameLeaderboard";
+export { getGameList } from "./getGameList";
 export { getPlayerGameScores } from "./getPlayerGameScores";
 export { seedNonogramLevels } from "./seedNonogramLevels";
 export { getNonogramLevels } from "./getNonogramLevels";
