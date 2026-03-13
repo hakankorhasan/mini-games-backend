@@ -4,60 +4,62 @@ import * as admin from "firebase-admin";
 /**
  * getLeaderboard
  *
- * Returns top players for global, country, or season leaderboards.
+ * HTTP GET endpoint — returns top players for global, country, or season leaderboards.
+ * No authentication required.
  *
- * Input:
- *  { type: "global" | "country" | "season", country?: string, limit?: number }
+ * GET /getLeaderboard?type=global&limit=100
+ * GET /getLeaderboard?type=country&country=TR&limit=50
+ * GET /getLeaderboard?type=season&limit=100
  *
  * Returns:
- *  { players: Array<{ uid, username, rating, tier, country, rank }> }
+ *  { success, players: Array<{ uid, username, rating, tier, country, rank }> }
  */
-export const getLeaderboard = functions.https.onCall(
-    async (data: {
-        type: "global" | "country" | "season";
-        country?: string;
-        limit?: number;
-    }, context: functions.https.CallableContext) => {
-        if (!context.auth?.uid) {
-            throw new functions.https.HttpsError(
-                "unauthenticated",
-                "Authentication required."
-            );
-        }
+export const getLeaderboard = functions.https.onRequest(async (req, res) => {
+    if (req.method !== "GET") {
+        res.status(405).json({ success: false, error: "Method not allowed. Use GET." });
+        return;
+    }
 
-        const { type, country, limit: queryLimit } = data;
-        const resultLimit = Math.min(queryLimit || 100, 200); // Cap at 200
+    try {
+        const type = (req.query.type as string) || "global";
+        const country = req.query.country as string | undefined;
+        const queryLimit = Math.min(
+            parseInt(req.query.limit as string, 10) || 100,
+            200
+        );
 
         const db = admin.firestore();
         let query: admin.firestore.Query = db.collection("users");
 
         switch (type) {
             case "global":
-                query = query.orderBy("rating", "desc").limit(resultLimit);
+                query = query.orderBy("rating", "desc").limit(queryLimit);
                 break;
 
             case "country":
                 if (!country) {
-                    throw new functions.https.HttpsError(
-                        "invalid-argument",
-                        "Country is required for country leaderboard."
-                    );
+                    res.status(400).json({
+                        success: false,
+                        error: "Country is required for country leaderboard.",
+                    });
+                    return;
                 }
                 query = query
                     .where("country", "==", country)
                     .orderBy("rating", "desc")
-                    .limit(resultLimit);
+                    .limit(queryLimit);
                 break;
 
             case "season":
-                query = query.orderBy("seasonRating", "desc").limit(resultLimit);
+                query = query.orderBy("seasonRating", "desc").limit(queryLimit);
                 break;
 
             default:
-                throw new functions.https.HttpsError(
-                    "invalid-argument",
-                    `Invalid leaderboard type: ${type}`
-                );
+                res.status(400).json({
+                    success: false,
+                    error: `Invalid leaderboard type: ${type}`,
+                });
+                return;
         }
 
         const snapshot = await query.get();
@@ -71,6 +73,9 @@ export const getLeaderboard = functions.https.onCall(
             rank: index + 1,
         }));
 
-        return { players };
+        res.status(200).json({ success: true, players });
+    } catch (error) {
+        functions.logger.error("getLeaderboard failed", error);
+        res.status(500).json({ success: false, error: String(error) });
     }
-);
+});

@@ -13,4 +13,5 @@ export interface Game {
     hasStoryMode: boolean;              // Whether story mode is available
     requiresPro: boolean;               // Whether Pro subscription is needed
     order: number;                      // Display order in the game list
+    leaderboardCoefficient: number;     // Weight for global leaderboard (1.0 = normal)
 }

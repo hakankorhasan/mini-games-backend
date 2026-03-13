@@ -2,7 +2,7 @@ import { validateGameResult } from "../utils/validation";
 
 describe("validateGameResult", () => {
     const validData = {
-        gameId: "puzzle",
+        gameId: "pipeConnect",
         difficulty: 3,
         correct: true,
         responseTime: 12.5,
@@ -46,8 +46,9 @@ describe("validateGameResult", () => {
 
     it("should accept all valid game IDs", () => {
         const gameIds = [
-            "puzzle", "memory", "quiz", "tapSpeed", "pattern",
-            "reflex", "candyCrush", "colorMatch", "wordScramble", "oddOneOut",
+            "pipeConnect", "laserPuzzle", "hiddenPair", "binaryPuzzle",
+            "pixelExcavation", "slitherlink", "blockFit", "cryptoCage",
+            "neuralLink", "galacticBeacons", "numberCircuit",
         ];
         gameIds.forEach((gameId) => {
             expect(validateGameResult({ ...validData, gameId }).valid).toBe(true);

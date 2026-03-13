@@ -18,6 +18,10 @@ export const createUser = functions.auth.user().onCreate(async (user) => {
         country: "",
         gamesPlayed: 0,
         correctAnswers: 0,
+        globalScore: 0,
+        weightedGlobalScore: 0,
+        currentStreak: 0,
+        bestStreak: 0,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
         lastActive: admin.firestore.FieldValue.serverTimestamp(),
     };

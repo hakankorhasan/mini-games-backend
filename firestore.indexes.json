@@ -41,6 +41,20 @@
                     "order": "ASCENDING"
                 }
             ]
+        },
+        {
+            "collectionGroup": "gameStats",
+            "queryScope": "COLLECTION_GROUP",
+            "fields": [
+                {
+                    "fieldPath": "gameId",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "bestScore",
+                    "order": "DESCENDING"
+                }
+            ]
         }
     ],
     "fieldOverrides": []

@@ -2,24 +2,24 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Users: anyone can read profile, owner can update safe fields only
+    // Users: anyone can read profile, client can update safe fields only
     match /users/{userId} {
       allow read: if true;
 
       // Client can only update username and country
-      // Rating, tier, seasonRating, gamesPlayed, correctAnswers are server-only
-      allow update: if request.auth.uid == userId
-                    && !request.resource.data.diff(resource.data).affectedKeys()
-                        .hasAny(['rating', 'tier', 'seasonRating', 'gamesPlayed', 'correctAnswers']);
+      // Rating, tier, seasonRating, gamesPlayed, correctAnswers, globalScore, weightedGlobalScore, streaks are server-only
+      allow update: if !request.resource.data.diff(resource.data).affectedKeys()
+                        .hasAny(['rating', 'tier', 'seasonRating', 'gamesPlayed', 'correctAnswers',
+                                 'globalScore', 'weightedGlobalScore', 'currentStreak', 'bestStreak']);
 
-      // User docs are created by Cloud Function (createUser trigger)
+      // User docs are created by Cloud Functions (deviceId-based)
       allow create: if false;
       allow delete: if false;
     }
 
-    // Per-game stats: only owner can read, Cloud Functions write
+    // Per-game stats: public read, Cloud Functions write
     match /users/{userId}/gameStats/{gameId} {
-      allow read: if request.auth.uid == userId;
+      allow read: if true;
       allow write: if false;
     }
 
@@ -55,6 +55,20 @@ service cloud.firestore {
     // Story Progress: device-id based, no auth required
     // Cloud Functions handle read/write; rules allow direct access too
     match /storyProgress/{deviceId}/stories/{storyId} {
+      allow read, write: if true;
+    }
+
+    // Nonogram Levels: all clients can read, only Admin SDK can write
+    match /nonogramLevels/{levelId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Nonogram Progress: device-id based, no auth required
+    match /nonogramProgress/{deviceId} {
+      allow read, write: if true;
+    }
+    match /nonogramProgress/{deviceId}/levelStats/{statId} {
       allow read, write: if true;
     }
   }

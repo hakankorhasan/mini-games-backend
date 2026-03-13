@@ -7,18 +7,19 @@ export interface ValidationResult {
     reason?: string;
 }
 
-/** Valid game IDs matching the 10 mini-games in the iOS app */
+/** Valid game IDs matching the mini-games in the iOS app */
 const VALID_GAME_IDS = [
-    "puzzle",
-    "memory",
-    "quiz",
-    "tapSpeed",
-    "pattern",
-    "reflex",
-    "candyCrush",
-    "colorMatch",
-    "wordScramble",
-    "oddOneOut",
+    "pipeConnect",
+    "laserPuzzle",
+    "hiddenPair",
+    "binaryPuzzle",
+    "pixelExcavation",
+    "slitherlink",
+    "blockFit",
+    "cryptoCage",
+    "neuralLink",
+    "galacticBeacons",
+    "numberCircuit",
 ];
 
 /**

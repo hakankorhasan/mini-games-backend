@@ -14,6 +14,7 @@ export const allGames: Game[] = [
         hasStoryMode: false,
         requiresPro: false,
         order: 1,
+        leaderboardCoefficient: 1.0,
     },
     {
         id: "laserPuzzle",
@@ -23,6 +24,7 @@ export const allGames: Game[] = [
         hasStoryMode: false,
         requiresPro: false,
         order: 2,
+        leaderboardCoefficient: 1.2,
     },
     {
         id: "hiddenPair",
@@ -32,6 +34,7 @@ export const allGames: Game[] = [
         hasStoryMode: false,
         requiresPro: false,
         order: 3,
+        leaderboardCoefficient: 0.8,
     },
     {
         id: "binaryPuzzle",
@@ -41,6 +44,7 @@ export const allGames: Game[] = [
         hasStoryMode: false,
         requiresPro: false,
         order: 4,
+        leaderboardCoefficient: 1.3,
     },
     {
         id: "pixelExcavation",
@@ -50,6 +54,7 @@ export const allGames: Game[] = [
         hasStoryMode: true,
         requiresPro: false,
         order: 5,
+        leaderboardCoefficient: 1.5,
     },
     {
         id: "slitherlink",
@@ -59,6 +64,7 @@ export const allGames: Game[] = [
         hasStoryMode: false,
         requiresPro: false,
         order: 6,
+        leaderboardCoefficient: 1.5,
     },
     {
         id: "blockFit",
@@ -68,6 +74,7 @@ export const allGames: Game[] = [
         hasStoryMode: false,
         requiresPro: false,
         order: 7,
+        leaderboardCoefficient: 1.0,
     },
     {
         id: "cryptoCage",
@@ -77,6 +84,7 @@ export const allGames: Game[] = [
         hasStoryMode: false,
         requiresPro: false,
         order: 8,
+        leaderboardCoefficient: 1.4,
     },
     {
         id: "neuralLink",
@@ -86,8 +94,9 @@ export const allGames: Game[] = [
         hasStoryMode: true,
         requiresPro: false,
         order: 9,
+        leaderboardCoefficient: 1.3,
     },
-     {
+    {
         id: "galacticBeacons",
         name: "Galactic Beacons",
         subtitle: "Star Battle bulmaca",
@@ -95,6 +104,7 @@ export const allGames: Game[] = [
         hasStoryMode: true,
         requiresPro: false,
         order: 9,
+        leaderboardCoefficient: 1.5,
     },
     {
         id: "numberCircuit",
@@ -104,5 +114,6 @@ export const allGames: Game[] = [
         hasStoryMode: false,
         requiresPro: false,
         order: 10,
+        leaderboardCoefficient: 1.2,
     },
 ];
