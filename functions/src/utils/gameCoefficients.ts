@@ -21,6 +21,7 @@ const DEFAULT_COEFFICIENTS: Record<string, number> = {
     neuralLink: 1.3,
     galacticBeacons: 1.5,
     numberCircuit: 1.2,
+    wordPuzzle: 1.0,
 };
 
 /**

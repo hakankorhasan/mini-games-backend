@@ -116,4 +116,14 @@ export const allGames: Game[] = [
         order: 10,
         leaderboardCoefficient: 1.2,
     },
+    {
+        id: "wordPuzzle",
+        name: "Word Puzzle",
+        subtitle: "Guess the hidden word in 5 tries",
+        gameType: ".wordPuzzle",
+        hasStoryMode: false,
+        requiresPro: false,
+        order: 11,
+        leaderboardCoefficient: 1.0,
+    },
 ];

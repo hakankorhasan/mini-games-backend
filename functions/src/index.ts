@@ -27,3 +27,5 @@ export { seedLaserPuzzleLevels } from "./seedLaserPuzzleLevels";
 export { getLaserPuzzleLevels } from "./getLaserPuzzleLevels";
 export { saveLaserPuzzleProgress, getLaserPuzzleProgress } from "./laserPuzzleProgress";
 export { saveGameProgress, getGameProgress } from "./gameProgress";
+export { seedWordPuzzleLevels } from "./seedWordPuzzleLevels";
+export { getWordPuzzleLevel, checkWordPuzzleGuess, resetWordPuzzleSession, getWordPuzzleHint } from "./wordPuzzle";
