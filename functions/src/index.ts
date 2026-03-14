@@ -23,3 +23,7 @@ export { getPlayerGameScores } from "./getPlayerGameScores";
 export { seedNonogramLevels } from "./seedNonogramLevels";
 export { getNonogramLevels } from "./getNonogramLevels";
 export { saveNonogramProgress, getNonogramProgress } from "./nonogramProgress";
+export { seedLaserPuzzleLevels } from "./seedLaserPuzzleLevels";
+export { getLaserPuzzleLevels } from "./getLaserPuzzleLevels";
+export { saveLaserPuzzleProgress, getLaserPuzzleProgress } from "./laserPuzzleProgress";
+export { saveGameProgress, getGameProgress } from "./gameProgress";
