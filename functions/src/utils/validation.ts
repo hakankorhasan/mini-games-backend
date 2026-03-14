@@ -20,6 +20,7 @@ const VALID_GAME_IDS = [
     "neuralLink",
     "galacticBeacons",
     "numberCircuit",
+    "wordPuzzle",
 ];
 
 /**
