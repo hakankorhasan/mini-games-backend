@@ -19,7 +19,7 @@ import { getCoefficient } from "./utils/gameCoefficients";
  *
  * Additionally maintains:
  *  - users/{deviceId}/gameStats/{gameId} → per-game aggregated stats
- *  - users/{deviceId}.weightedGlobalScore → Σ(bestScore × coefficient)
+ *  - users/{deviceId}.weightedGlobalScore → cumulative Σ(scoreGained × coefficient)
  *
  * POST /submitGameResult
  * Body: { deviceId, gameId, level, difficulty, correct, responseTime, isStoryMode? }
@@ -81,8 +81,8 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
 
             // ── Calculate new score ──
             const currentRating = userDoc.exists
-                ? (userDoc.data()!.rating || 1000)
-                : 1000;
+                ? (userDoc.data()!.rating || 0)
+                : 0;
 
             const { newRating, ratingChange } = calculateRatingChange({
                 currentRating,
@@ -137,20 +137,21 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
             // ── Get coefficient for this game ──
             const coefficient = getCoefficient(gameId);
 
+            // ── Cumulative weighted score for this play ──
+            const playWeightedScore = isStoryMode ? 0 : Math.round(scoreGained * coefficient);
+
             // ── Auto-create user if first time ──
             if (!userDoc.exists) {
-                const weightedScore = Math.round(scoreGained * coefficient);
-
                 transaction.set(userRef, {
                     username: `Player_${deviceId.substring(0, 6)}`,
                     rating: newRating,
-                    seasonRating: 1000,
+                    seasonRating: 0,
                     tier: tier,
                     country: "",
                     gamesPlayed: 1,
                     correctAnswers: correct ? 1 : 0,
                     globalScore: scoreGained,
-                    weightedGlobalScore: isStoryMode ? 0 : weightedScore,
+                    weightedGlobalScore: playWeightedScore,
                     currentStreak: newStreak,
                     bestStreak: bestStreak,
                     createdAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -173,14 +174,13 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
 
                 // Create gameStats for this game
                 if (!isStoryMode) {
-                    const newAvg = scoreGained;
                     transaction.set(gameStatsRef, {
                         gameId,
                         bestScore: scoreGained,
-                        weightedScore,
+                        weightedScore: playWeightedScore,
                         gamesPlayed: 1,
                         totalScore: scoreGained,
-                        avgScore: newAvg,
+                        avgScore: scoreGained,
                         lastPlayedAt: admin.firestore.FieldValue.serverTimestamp(),
                     });
                 }
@@ -193,18 +193,18 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
                     scoreGained,
                     newStreak,
                     previousBest: 0,
-                    weightedGlobalScore: isStoryMode ? 0 : weightedScore,
+                    weightedGlobalScore: playWeightedScore,
                     gameStats: isStoryMode ? null : {
                         gameId,
                         bestScore: scoreGained,
                         coefficient,
-                        weightedScore,
+                        weightedScore: playWeightedScore,
                         gamesPlayed: 1,
                     },
                 };
             }
 
-            // ── If NOT improved: only update streak, gamesPlayed ──
+            // ── If NOT improved: update streak, gamesPlayed, and cumulative weighted score ──
             if (!improved) {
                 const updateData: Record<string, unknown> = {
                     gamesPlayed: admin.firestore.FieldValue.increment(1),
@@ -213,6 +213,8 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
                 if (!isStoryMode) {
                     updateData.currentStreak = newStreak;
                     updateData.bestStreak = bestStreak;
+                    // Always add to weighted score (cumulative)
+                    updateData.weightedGlobalScore = admin.firestore.FieldValue.increment(playWeightedScore);
                 }
                 transaction.update(userRef, updateData);
 
@@ -226,6 +228,7 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
                         transaction.update(gameStatsRef, {
                             gamesPlayed: newGamesPlayed,
                             totalScore: newTotalScore,
+                            weightedScore: admin.firestore.FieldValue.increment(playWeightedScore),
                             avgScore: newAvg,
                             lastPlayedAt: admin.firestore.FieldValue.serverTimestamp(),
                         });
@@ -233,7 +236,7 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
                         transaction.set(gameStatsRef, {
                             gameId,
                             bestScore: scoreGained,
-                            weightedScore: Math.round(scoreGained * coefficient),
+                            weightedScore: playWeightedScore,
                             gamesPlayed: 1,
                             totalScore: scoreGained,
                             avgScore: scoreGained,
@@ -242,28 +245,34 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
                     }
                 }
 
+                const currentWeighted = userDoc.data()!.weightedGlobalScore || 0;
+                const currentGameWeightedScore = gameStatsDoc.exists
+                    ? (gameStatsDoc.data()!.weightedScore || 0)
+                    : 0;
+
                 return {
                     improved: false,
-                    newRating: currentRating, // rating stays the same
+                    newRating: currentRating,
                     ratingChange: 0,
                     tier: getTier(currentRating),
                     scoreGained,
                     newStreak,
                     previousBest: previousBestScore,
-                    weightedGlobalScore: userDoc.data()!.weightedGlobalScore || 0,
-                    message: "Önceki en iyi skorunuzu geçemediniz!",
+                    weightedGlobalScore: currentWeighted + playWeightedScore,
+                    gameStats: isStoryMode ? null : {
+                        gameId,
+                        bestScore: Math.max(currentGameBest, scoreGained),
+                        coefficient,
+                        weightedScore: currentGameWeightedScore + playWeightedScore,
+                        gamesPlayed: currentGameGamesPlayed + 1,
+                    },
                 };
             }
 
             // ── IMPROVED: update everything ──
             const scoreDelta = scoreGained - previousBestScore;
             const ratingDelta = ratingChange - previousBestRating;
-
-            // Calculate new game best and weighted scores
             const newGameBest = Math.max(currentGameBest, scoreGained);
-            const newGameWeightedScore = Math.round(newGameBest * coefficient);
-            const oldGameWeightedScore = Math.round(currentGameBest * coefficient);
-            const weightedScoreDelta = newGameWeightedScore - oldGameWeightedScore;
 
             const updateData: Record<string, unknown> = {
                 rating: currentRating + ratingDelta,
@@ -277,7 +286,8 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
 
             if (!isStoryMode) {
                 updateData.globalScore = admin.firestore.FieldValue.increment(scoreDelta);
-                updateData.weightedGlobalScore = admin.firestore.FieldValue.increment(weightedScoreDelta);
+                // Cumulative: add this play's weighted score
+                updateData.weightedGlobalScore = admin.firestore.FieldValue.increment(playWeightedScore);
                 updateData.currentStreak = newStreak;
                 updateData.bestStreak = bestStreak;
             }
@@ -309,7 +319,7 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
                 if (gameStatsDoc.exists) {
                     transaction.update(gameStatsRef, {
                         bestScore: newGameBest,
-                        weightedScore: newGameWeightedScore,
+                        weightedScore: admin.firestore.FieldValue.increment(playWeightedScore),
                         gamesPlayed: newGamesPlayed,
                         totalScore: newTotalScore,
                         avgScore: newAvg,
@@ -319,7 +329,7 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
                     transaction.set(gameStatsRef, {
                         gameId,
                         bestScore: scoreGained,
-                        weightedScore: Math.round(scoreGained * coefficient),
+                        weightedScore: playWeightedScore,
                         gamesPlayed: 1,
                         totalScore: scoreGained,
                         avgScore: scoreGained,
@@ -339,12 +349,12 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
                 scoreGained,
                 newStreak,
                 previousBest: previousBestScore,
-                weightedGlobalScore: currentWeightedGlobal + weightedScoreDelta,
+                weightedGlobalScore: currentWeightedGlobal + playWeightedScore,
                 gameStats: {
                     gameId,
                     bestScore: newGameBest,
                     coefficient,
-                    weightedScore: newGameWeightedScore,
+                    weightedScore: playWeightedScore,
                     gamesPlayed: currentGameGamesPlayed + 1,
                 },
             };

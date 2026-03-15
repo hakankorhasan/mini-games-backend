@@ -1,15 +1,23 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import { TOTAL_PIPE_LEVELS } from "./utils/pipeGenerator";
+import { TOTAL_BLOCK_FIT_LEVELS } from "./utils/blockFitGenerator";
 
 /**
- * getPipeConnectLevels
+ * getBlockFitLevels
  *
- * HTTP GET endpoint:
- *   GET /getPipeConnectLevels?level=5       → full level data (gameplay)
- *   GET /getPipeConnectLevels?page=1&pageSize=20 → lightweight list (level selection)
+ * HTTP GET endpoint — returns Block Fit level data.
+ *
+ * Two modes:
+ *
+ * 1. Single level (for gameplay):
+ *    GET /getBlockFitLevels?level=5
+ *    → Returns full level data WITH prefill, blockPool
+ *
+ * 2. Level list (for level selection screen):
+ *    GET /getBlockFitLevels?page=1&pageSize=20
+ *    → Returns lightweight list (levelNumber, difficulty, targetScore)
  */
-export const getPipeConnectLevels = functions.https.onRequest(
+export const getBlockFitLevels = functions.https.onRequest(
     async (req, res) => {
         if (req.method !== "GET") {
             res.status(405).json({
@@ -35,7 +43,7 @@ export const getPipeConnectLevels = functions.https.onRequest(
                 }
 
                 const doc = await db
-                    .collection("pipeConnectLevels")
+                    .collection("blockFitLevels")
                     .doc(`level_${levelNumber}`)
                     .get();
 
@@ -47,44 +55,26 @@ export const getPipeConnectLevels = functions.https.onRequest(
                     return;
                 }
 
-                const rawData = doc.data()!;
-
-                // Handle both storage formats:
-                // 1. Direct objects: cells, solution (current seed format)
-                // 2. JSON-serialized: cellsJson, solutionJson (legacy format)
-                const level: Record<string, unknown> = {
-                    levelNumber: rawData.levelNumber,
-                    gridSize: rawData.gridSize,
-                    lives: rawData.lives,
-                    difficulty: rawData.difficulty,
-                    difficultyValue: rawData.difficultyValue,
-                    sourceRow: rawData.sourceRow,
-                    sourceCol: rawData.sourceCol,
-                    sinkRow: rawData.sinkRow,
-                    sinkCol: rawData.sinkCol,
-                    sourceDirection: rawData.sourceDirection,
-                    sinkDirection: rawData.sinkDirection,
-                    cells: rawData.cells ?? JSON.parse(rawData.cellsJson),
-                    solution: rawData.solution ?? JSON.parse(rawData.solutionJson),
-                };
-
                 res.status(200).json({
                     success: true,
-                    level,
+                    level: doc.data(),
                 });
                 return;
             }
 
             // ── Level list mode ──
-            const page = parseInt(String(req.query.page || "1"), 10);
-            const pageSize = parseInt(
-                String(req.query.pageSize || "20"),
-                10
+            const page = Math.max(
+                1,
+                parseInt(String(req.query.page ?? 1), 10)
+            );
+            const pageSize = Math.min(
+                50,
+                Math.max(1, parseInt(String(req.query.pageSize ?? 20), 10))
             );
             const offset = (page - 1) * pageSize;
 
             const snapshot = await db
-                .collection("pipeConnectLevels")
+                .collection("blockFitLevels")
                 .orderBy("levelNumber", "asc")
                 .offset(offset)
                 .limit(pageSize)
@@ -93,7 +83,7 @@ export const getPipeConnectLevels = functions.https.onRequest(
                     "gridSize",
                     "difficulty",
                     "difficultyValue",
-                    "lives"
+                    "targetScore"
                 )
                 .get();
 
@@ -103,12 +93,12 @@ export const getPipeConnectLevels = functions.https.onRequest(
                 success: true,
                 page,
                 pageSize,
-                totalLevels: TOTAL_PIPE_LEVELS,
-                totalPages: Math.ceil(TOTAL_PIPE_LEVELS / pageSize),
+                totalLevels: TOTAL_BLOCK_FIT_LEVELS,
+                totalPages: Math.ceil(TOTAL_BLOCK_FIT_LEVELS / pageSize),
                 levels,
             });
         } catch (error) {
-            functions.logger.error("getPipeConnectLevels error:", error);
+            functions.logger.error("getBlockFitLevels error:", error);
             res.status(500).json({ success: false, error: String(error) });
         }
     }

@@ -1,18 +1,20 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import { getTierByRank } from "./utils/tiers";
 
 /**
  * getGlobalLeaderboard
  *
  * HTTP GET endpoint — returns top players ranked by weightedGlobalScore.
- * weightedGlobalScore = Σ(bestScore × coefficient) across all games.
+ * weightedGlobalScore = cumulative Σ(scoreGained × coefficient).
+ * Tier is determined by rank, not rating.
  * Optionally returns the calling player's own rank and score via deviceId.
  *
  * GET /getGlobalLeaderboard?limit=100
  * GET /getGlobalLeaderboard?limit=100&deviceId=ABCD-1234
  *
  * Returns:
- *  { success, players: [...], myRank, myScore }
+ *  { success, players: [...], myRank, myScore, myTier }
  */
 export const getGlobalLeaderboard = functions.https.onRequest(async (req, res) => {
     if (req.method !== "GET") {
@@ -36,16 +38,19 @@ export const getGlobalLeaderboard = functions.https.onRequest(async (req, res) =
             .limit(resultLimit)
             .get();
 
-        const players = snapshot.docs.map((doc, index) => ({
-            uid: doc.id,
-            username: doc.data().username || "Unknown",
-            weightedGlobalScore: doc.data().weightedGlobalScore || 0,
-            globalScore: doc.data().globalScore || 0,
-            tier: doc.data().tier || "Bronze",
-            gamesPlayed: doc.data().gamesPlayed || 0,
-            bestStreak: doc.data().bestStreak || 0,
-            rank: index + 1,
-        }));
+        const players = snapshot.docs.map((doc, index) => {
+            const rank = index + 1;
+            return {
+                uid: doc.id,
+                username: doc.data().username || "Unknown",
+                weightedGlobalScore: doc.data().weightedGlobalScore || 0,
+                globalScore: doc.data().globalScore || 0,
+                tier: getTierByRank(rank),
+                gamesPlayed: doc.data().gamesPlayed || 0,
+                bestStreak: doc.data().bestStreak || 0,
+                rank,
+            };
+        });
 
         // Find calling player's rank (if deviceId provided)
         let myRank = -1;
@@ -75,7 +80,8 @@ export const getGlobalLeaderboard = functions.https.onRequest(async (req, res) =
             }
         }
 
-        res.status(200).json({ success: true, players, myRank, myScore });
+        const myTier = myRank > 0 ? getTierByRank(myRank) : "Bronze";
+        res.status(200).json({ success: true, players, myRank, myScore, myTier });
     } catch (error) {
         functions.logger.error("getGlobalLeaderboard failed", error);
         res.status(500).json({ success: false, error: String(error) });

@@ -123,7 +123,7 @@ const LEVEL_TIERS: TierDef[] = [
         gridSize: 4, lives: 5, difficulty: "tutorial",
         difficultyRange: [1, 2],
         pipeTypes: ["straight", "elbow"],
-        trapRange: [0, 0.12], wallRange: [0, 0.15],
+        trapRange: [0.08, 0.15], wallRange: [0.10, 0.18],
         lockedRange: [0, 0], directnessRange: [0.55, 0.45],
         variableSourceSink: false,
     },
@@ -131,8 +131,8 @@ const LEVEL_TIERS: TierDef[] = [
         minLevel: 16, maxLevel: 40,
         gridSize: 5, lives: 5, difficulty: "beginner",
         difficultyRange: [2, 3],
-        pipeTypes: ["straight", "elbow"],
-        trapRange: [0.03, 0.10], wallRange: [0.03, 0.08],
+        pipeTypes: ["straight", "elbow", "tPipe"],
+        trapRange: [0.10, 0.18], wallRange: [0.08, 0.15],
         lockedRange: [0, 0], directnessRange: [0.65, 0.50],
         variableSourceSink: false,
     },
@@ -141,7 +141,7 @@ const LEVEL_TIERS: TierDef[] = [
         gridSize: 5, lives: 4, difficulty: "easy",
         difficultyRange: [3, 5],
         pipeTypes: ["straight", "elbow", "tPipe"],
-        trapRange: [0.05, 0.15], wallRange: [0, 0.05],
+        trapRange: [0.12, 0.22], wallRange: [0.10, 0.15],
         lockedRange: [0, 0], directnessRange: [0.55, 0.40],
         variableSourceSink: true,
     },
@@ -150,7 +150,7 @@ const LEVEL_TIERS: TierDef[] = [
         gridSize: 6, lives: 4, difficulty: "medium",
         difficultyRange: [5, 6],
         pipeTypes: ["straight", "elbow", "tPipe", "cross"],
-        trapRange: [0.10, 0.25], wallRange: [0.03, 0.08],
+        trapRange: [0.15, 0.28], wallRange: [0.10, 0.15],
         lockedRange: [0, 0], directnessRange: [0.50, 0.35],
         variableSourceSink: true,
     },
@@ -159,7 +159,7 @@ const LEVEL_TIERS: TierDef[] = [
         gridSize: 7, lives: 3, difficulty: "hard",
         difficultyRange: [6, 8],
         pipeTypes: ["straight", "elbow", "tPipe", "cross"],
-        trapRange: [0.20, 0.35], wallRange: [0.05, 0.12],
+        trapRange: [0.22, 0.38], wallRange: [0.12, 0.18],
         lockedRange: [1, 3], directnessRange: [0.40, 0.30],
         variableSourceSink: true,
     },
@@ -168,7 +168,7 @@ const LEVEL_TIERS: TierDef[] = [
         gridSize: 8, lives: 2, difficulty: "expert",
         difficultyRange: [8, 9],
         pipeTypes: ["straight", "elbow", "tPipe", "cross"],
-        trapRange: [0.30, 0.45], wallRange: [0.10, 0.18],
+        trapRange: [0.30, 0.45], wallRange: [0.15, 0.22],
         lockedRange: [2, 4], directnessRange: [0.30, 0.22],
         variableSourceSink: true,
     },
@@ -177,7 +177,7 @@ const LEVEL_TIERS: TierDef[] = [
         gridSize: 9, lives: 2, difficulty: "master",
         difficultyRange: [9, 10],
         pipeTypes: ["straight", "elbow", "tPipe"],
-        trapRange: [0.40, 0.55], wallRange: [0.15, 0.20],
+        trapRange: [0.40, 0.55], wallRange: [0.18, 0.25],
         lockedRange: [3, 5], directnessRange: [0.22, 0.15],
         variableSourceSink: true,
     },
@@ -228,6 +228,8 @@ interface PathResult {
 
 /**
  * Pick source/sink positions on grid edges.
+ * Source is ALWAYS on the left edge, sink is ALWAYS on the right edge.
+ * When variable=true, the row positions are randomized.
  */
 function pickSourceSink(
     size: number,
@@ -245,41 +247,14 @@ function pickSourceSink(
         };
     }
 
-    // Variable: pick source on left or top edge, sink on right or bottom edge
-    const sourceEdge = Math.random() < 0.6 ? "left" : "top";
-    const sinkEdge = Math.random() < 0.6 ? "right" : "bottom";
+    // Variable: random row on left edge → random row on right edge
+    const sourceRow = Math.floor(Math.random() * size);
+    const sinkRow = Math.floor(Math.random() * size);
 
-    let sourceRow: number, sourceCol: number, sourceDir: Direction;
-    let sinkRow: number, sinkCol: number, sinkDir: Direction;
-
-    if (sourceEdge === "left") {
-        sourceRow = Math.floor(Math.random() * size);
-        sourceCol = 0;
-        sourceDir = "left";
-    } else {
-        sourceRow = 0;
-        sourceCol = Math.floor(Math.random() * size);
-        sourceDir = "up";
-    }
-
-    if (sinkEdge === "right") {
-        sinkRow = Math.floor(Math.random() * size);
-        sinkCol = size - 1;
-        sinkDir = "right";
-    } else {
-        sinkRow = size - 1;
-        sinkCol = Math.floor(Math.random() * size);
-        sinkDir = "down";
-    }
-
-    // Ensure source != sink
-    if (sourceRow === sinkRow && sourceCol === sinkCol) {
-        sinkRow = size - 1;
-        sinkCol = size - 1;
-        sinkDir = "right";
-    }
-
-    return { sourceRow, sourceCol, sourceDir, sinkRow, sinkCol, sinkDir };
+    return {
+        sourceRow, sourceCol: 0, sourceDir: "left",
+        sinkRow, sinkCol: size - 1, sinkDir: "right",
+    };
 }
 
 /**

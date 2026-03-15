@@ -1,20 +1,33 @@
 /**
- * Tier / League system.
+ * Tier / League system — Rank-based.
  *
- * Rating thresholds:
- *  0–999     → Bronze
- *  1000–1199 → Silver
- *  1200–1499 → Gold
- *  1500–1799 → Platinum
- *  1800+     → Diamond
+ * Tiers are determined by the player's global leaderboard rank:
+ *   Top 3        → Legend
+ *   1–100        → Diamond
+ *   101–500      → Platinum
+ *   501–1000     → Gold
+ *   1001–2000    → Silver
+ *   2001+        → Bronze
  */
 
-export type Tier = "Bronze" | "Silver" | "Gold" | "Platinum" | "Diamond";
+export type Tier = "Bronze" | "Silver" | "Gold" | "Platinum" | "Diamond" | "Legend";
 
-export function getTier(rating: number): Tier {
-    if (rating >= 1800) return "Diamond";
-    if (rating >= 1500) return "Platinum";
-    if (rating >= 1200) return "Gold";
-    if (rating >= 1000) return "Silver";
+/**
+ * Get tier from global leaderboard rank.
+ * rank = 1 means the player is #1 in the world.
+ */
+export function getTierByRank(rank: number): Tier {
+    if (rank <= 3) return "Legend";
+    if (rank <= 100) return "Diamond";
+    if (rank <= 500) return "Platinum";
+    if (rank <= 1000) return "Gold";
+    if (rank <= 2000) return "Silver";
     return "Bronze";
+}
+
+/**
+ * @deprecated Use getTierByRank instead. Kept for backward compatibility.
+ */
+export function getTier(_rating: number): Tier {
+    return "Bronze"; // Default — will be overwritten by scheduled rank update
 }

@@ -13,11 +13,11 @@ const DEFAULT_COEFFICIENTS: Record<string, number> = {
     pipeConnect: 1.0,
     laserPuzzle: 1.2,
     hiddenPair: 0.8,
-    binaryPuzzle: 1.3,
+
     pixelExcavation: 1.5,
     slitherlink: 1.5,
     blockFit: 1.0,
-    cryptoCage: 1.4,
+
     neuralLink: 1.3,
     galacticBeacons: 1.5,
     numberCircuit: 1.2,

@@ -36,16 +36,7 @@ export const allGames: Game[] = [
         order: 3,
         leaderboardCoefficient: 0.8,
     },
-    {
-        id: "binaryPuzzle",
-        name: "Binary Puzzle",
-        subtitle: "Fill the grid with 0s and 1s",
-        gameType: ".binaryPuzzle",
-        hasStoryMode: false,
-        requiresPro: false,
-        order: 4,
-        leaderboardCoefficient: 1.3,
-    },
+
     {
         id: "pixelExcavation",
         name: "Pixel Excavation",
@@ -76,16 +67,7 @@ export const allGames: Game[] = [
         order: 7,
         leaderboardCoefficient: 1.0,
     },
-    {
-        id: "cryptoCage",
-        name: "Crypto-Cage",
-        subtitle: "Solve cages with math and logic",
-        gameType: ".cryptoCage",
-        hasStoryMode: false,
-        requiresPro: false,
-        order: 8,
-        leaderboardCoefficient: 1.4,
-    },
+
     {
         id: "neuralLink",
         name: "Neural Link",

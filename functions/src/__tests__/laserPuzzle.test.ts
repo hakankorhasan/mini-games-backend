@@ -64,49 +64,63 @@ describe("Laser Puzzle — Level Generator", () => {
 
     // ── Difficulty Config ─────────────────────────────
     describe("getDifficultyConfig", () => {
-        it("should return beginner for levels 1–20", () => {
+        it("should return beginner for levels 1–15 (5×5)", () => {
             expect(getDifficultyConfig(1).difficulty).toBe("beginner");
             expect(getDifficultyConfig(1).gridSize).toBe(5);
-            expect(getDifficultyConfig(20).difficulty).toBe("beginner");
+            expect(getDifficultyConfig(1).mirrorCount).toBe(3);
+            expect(getDifficultyConfig(15).difficulty).toBe("beginner");
         });
 
-        it("should return intermediate for levels 21–50", () => {
-            expect(getDifficultyConfig(21).difficulty).toBe("intermediate");
-            expect(getDifficultyConfig(21).gridSize).toBe(6);
-            expect(getDifficultyConfig(50).difficulty).toBe("intermediate");
+        it("should return intermediate for levels 16–80", () => {
+            expect(getDifficultyConfig(16).difficulty).toBe("intermediate");
+            expect(getDifficultyConfig(16).gridSize).toBe(5);
+            expect(getDifficultyConfig(50).gridSize).toBe(6);
+            expect(getDifficultyConfig(80).difficulty).toBe("intermediate");
         });
 
-        it("should return advanced for levels 51–100", () => {
-            expect(getDifficultyConfig(51).difficulty).toBe("advanced");
-            expect(getDifficultyConfig(51).gridSize).toBe(7);
-            expect(getDifficultyConfig(100).difficulty).toBe("advanced");
+        it("should return advanced for levels 81–140 (7×7)", () => {
+            expect(getDifficultyConfig(81).difficulty).toBe("advanced");
+            expect(getDifficultyConfig(81).gridSize).toBe(7);
+            expect(getDifficultyConfig(140).difficulty).toBe("advanced");
         });
 
-        it("should return expert for levels 101–150", () => {
-            expect(getDifficultyConfig(101).difficulty).toBe("expert");
-            expect(getDifficultyConfig(101).gridSize).toBe(8);
-            expect(getDifficultyConfig(150).difficulty).toBe("expert");
+        it("should return expert for levels 141–220 (8×8)", () => {
+            expect(getDifficultyConfig(141).difficulty).toBe("expert");
+            expect(getDifficultyConfig(141).gridSize).toBe(8);
+            expect(getDifficultyConfig(220).difficulty).toBe("expert");
         });
 
-        it("should return master for levels 151+", () => {
-            expect(getDifficultyConfig(151).difficulty).toBe("master");
-            expect(getDifficultyConfig(151).gridSize).toBe(10);
-            expect(getDifficultyConfig(200).difficulty).toBe("master");
+        it("should return master for levels 221+ (9×9→10×10)", () => {
+            expect(getDifficultyConfig(221).difficulty).toBe("master");
+            expect(getDifficultyConfig(221).gridSize).toBe(9);
+            expect(getDifficultyConfig(321).gridSize).toBe(10);
+            expect(getDifficultyConfig(500).difficulty).toBe("master");
         });
 
-        it("advanced should have portals and walls", () => {
-            const cfg = getDifficultyConfig(75);
+        it("beginner should have high decoy fill (8+ mirrors visible)", () => {
+            const cfg = getDifficultyConfig(1);
+            expect(cfg.decoyFillFraction).toBeGreaterThanOrEqual(0.55);
+        });
+
+        it("walls should appear at level 10 in beginner", () => {
+            expect(getDifficultyConfig(9).wallCount).toBe(0);
+            expect(getDifficultyConfig(10).wallCount).toBe(1);
+        });
+
+        it("advanced should have portals and bombs", () => {
+            const cfg = getDifficultyConfig(100);
             expect(cfg.portalPairCount).toBeGreaterThan(0);
-            expect(cfg.wallCount).toBeGreaterThan(0);
-        });
-
-        it("expert should have bombs", () => {
-            const cfg = getDifficultyConfig(125);
             expect(cfg.bombCount).toBeGreaterThan(0);
         });
 
+        it("expert should have bombs and walls", () => {
+            const cfg = getDifficultyConfig(200);
+            expect(cfg.bombCount).toBeGreaterThan(0);
+            expect(cfg.wallCount).toBeGreaterThan(0);
+        });
+
         it("master should have splitters", () => {
-            const cfg = getDifficultyConfig(175);
+            const cfg = getDifficultyConfig(300);
             expect(cfg.splitterCount).toBeGreaterThan(0);
         });
     });
@@ -174,9 +188,7 @@ describe("Laser Puzzle — Level Generator", () => {
         });
 
         it("should stop laser at source if it bounces back", () => {
-            // Source (0,2) down → mirror at (2,2) angle 0 "/" → turns up → continues
-            // Actually "/" : down → left, not up
-            // Let's make it bounce back: source (2,0) right → mirror (2,3) angle 0 "/" → right → up
+            // Source (2,0) right → mirror (2,3) angle 0 "/" → right → up
             // Nothing else → goes out of grid, doesn't hit target
             const cells: Cell[] = [
                 { row: 2, col: 0, type: "source", direction: "right" },
@@ -215,7 +227,7 @@ describe("Laser Puzzle — Level Generator", () => {
 
         it("should generate valid intermediate level", () => {
             const rand = createSeededRandom(100);
-            const level = generateLevel(30, rand);
+            const level = generateLevel(50, rand);
 
             expect(level.gridSize).toBe(6);
             expect(level.difficulty).toBe("intermediate");
@@ -223,7 +235,7 @@ describe("Laser Puzzle — Level Generator", () => {
 
         it("should generate valid advanced level", () => {
             const rand = createSeededRandom(200);
-            const level = generateLevel(75, rand);
+            const level = generateLevel(100, rand);
 
             expect(level.gridSize).toBe(7);
             expect(level.difficulty).toBe("advanced");
@@ -231,7 +243,7 @@ describe("Laser Puzzle — Level Generator", () => {
 
         it("should generate valid expert level", () => {
             const rand = createSeededRandom(300);
-            const level = generateLevel(125, rand);
+            const level = generateLevel(200, rand);
 
             expect(level.gridSize).toBe(8);
             expect(level.difficulty).toBe("expert");
@@ -239,7 +251,7 @@ describe("Laser Puzzle — Level Generator", () => {
 
         it("should generate valid master level", () => {
             const rand = createSeededRandom(400);
-            const level = generateLevel(175, rand);
+            const level = generateLevel(400, rand);
 
             expect(level.gridSize).toBe(10);
             expect(level.difficulty).toBe("master");
@@ -278,12 +290,9 @@ describe("Laser Puzzle — Level Generator", () => {
         });
 
         it("laser should never go straight to target (no mirror needed)", () => {
-            // Generate many beginner levels and verify
-            for (let lvl = 1; lvl <= 20; lvl++) {
+            for (let lvl = 1; lvl <= 15; lvl++) {
                 const rand = createSeededRandom(lvl * 7);
                 const level = generateLevel(lvl, rand);
-
-                // Solution must require at least 1 mirror
                 expect(level.solution.length).toBeGreaterThanOrEqual(1);
             }
         });
@@ -308,28 +317,25 @@ describe("Laser Puzzle — Level Generator", () => {
         });
     });
 
-    // ── Stress Test: All 200 Levels ───────────────────
-    describe("200-level stress test", () => {
-        it("should generate all 200 levels successfully", () => {
-            const levels = generateLevels(1, 200);
-            expect(levels.length).toBe(200);
+    // ── Stress Test: All 500 Levels ───────────────────
+    describe("500-level stress test", () => {
+        it("should generate all 500 levels successfully", () => {
+            const levels = generateLevels(1, 500);
+            expect(levels.length).toBe(500);
 
             for (const level of levels) {
-                // Every level must have a source
                 const sources = level.cells.filter((c) => c.type === "source");
                 expect(sources.length).toBe(1);
 
-                // Every level must have at least 1 target
                 const targets = level.cells.filter((c) => c.type === "target");
                 expect(targets.length).toBeGreaterThanOrEqual(1);
 
-                // Solution must require at least 1 mirror rotation
                 expect(level.solution.length).toBeGreaterThanOrEqual(1);
             }
-        }, 60_000); // 60s timeout for 200 levels
+        }, 120_000);
 
-        it("all 200 levels should be solvable with solution angles", () => {
-            const levels = generateLevels(1, 200);
+        it("all 500 levels should be solvable with solution angles", () => {
+            const levels = generateLevels(1, 500);
             const failedLevels: number[] = [];
 
             for (const level of levels) {
@@ -363,6 +369,6 @@ describe("Laser Puzzle — Level Generator", () => {
             }
 
             expect(failedLevels).toEqual([]);
-        }, 60_000);
+        }, 120_000);
     });
 });

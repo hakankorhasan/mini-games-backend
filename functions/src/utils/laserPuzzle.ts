@@ -50,17 +50,17 @@ export function reflect(dir: Direction, mirrorAngle: number): Direction {
         // "/" slash
         switch (dir) {
             case "right": return "up";
-            case "down":  return "left";
-            case "left":  return "down";
-            case "up":    return "right";
+            case "down": return "left";
+            case "left": return "down";
+            case "up": return "right";
         }
     } else {
         // "\" backslash
         switch (dir) {
             case "right": return "down";
-            case "up":    return "left";
-            case "left":  return "up";
-            case "down":  return "right";
+            case "up": return "left";
+            case "left": return "up";
+            case "down": return "right";
         }
     }
     return dir; // fallback — shouldn't reach
@@ -84,66 +84,133 @@ export function angleForReflection(incoming: Direction, outgoing: Direction): nu
 // ─── Difficulty Config ──────────────────────────────────────────
 
 /**
- * Returns difficulty configuration for a given level number (1–200+).
+ * Returns difficulty configuration for a given level number (1–500+).
+ *
+ * Each grid size tier ramps internally: starts manageable, ends hard.
+ * Obstacles, portals, bombs appear MID-TIER, not at tier boundaries.
+ * High decoy fill ensures 8+ total mirrors on board from level 1.
+ *
+ * Tier Map:
+ *   1–15    5×5  Warm-up   : 3 solution mirrors, high decoys, walls appear at lvl 10
+ *   16–40   5×5  Challenge : 4 solution mirrors, walls + portal at end
+ *   41–80   6×6  Standard  : 4→5 mirrors, walls, portal, fixed mirrors
+ *   81–140  7×7  Advanced  : 5→6 mirrors, bombs appear mid-tier
+ *   141–220 8×8  Expert    : 6→8 mirrors, portals + bombs + splitter at end
+ *   221–320 9×9  Master I  : 8→9 mirrors, full mechanics, 2 portals
+ *   321–500 10×10 Master II: 10 mirrors, max density, all dangers
  */
 export function getDifficultyConfig(levelNumber: number): DifficultyConfig {
-    if (levelNumber <= 20) {
+    // ── 5×5 Warm-up (1–15) ──
+    // 3 solution mirrors + 55-65% decoy fill → 8+ total mirrors visible
+    // Walls appear at level 10+
+    if (levelNumber <= 15) {
+        const t = (levelNumber - 1) / 14;
         return {
             gridSize: 5,
-            mirrorCount: 2,
-            wallCount: 0,
+            mirrorCount: 3,
+            wallCount: levelNumber >= 10 ? 1 : 0,
             lives: 5,
             fixedMirrorCount: 0,
-            decoyFillFraction: 0.30,
+            decoyFillFraction: 0.55 + t * 0.10,   // 0.55→0.65
             portalPairCount: 0,
             bombCount: 0,
             splitterCount: 0,
             difficulty: "beginner",
         };
     }
-    if (levelNumber <= 50) {
+
+    // ── 5×5 Challenge (16–40) ──
+    // 4 solution mirrors, walls ramp, portal at level 30+
+    if (levelNumber <= 40) {
+        const t = (levelNumber - 16) / 24;
         return {
-            gridSize: 6,
-            mirrorCount: 3,
-            wallCount: 0,
+            gridSize: 5,
+            mirrorCount: 4,
+            wallCount: 1 + Math.round(t),              // 1→2
             lives: 4,
-            fixedMirrorCount: 0,
-            decoyFillFraction: 0.45,
-            portalPairCount: 0,
+            fixedMirrorCount: t > 0.5 ? 1 : 0,         // fixed mirror at lvl 29+
+            decoyFillFraction: 0.60 + t * 0.10,        // 0.60→0.70
+            portalPairCount: levelNumber >= 30 ? 1 : 0,
             bombCount: 0,
             splitterCount: 0,
             difficulty: "intermediate",
         };
     }
-    if (levelNumber <= 100) {
+
+    // ── 6×6 Standard (41–80) ──
+    // Grid grows, mirror count 4→5, walls + portal, bombs at end
+    if (levelNumber <= 80) {
+        const t = (levelNumber - 41) / 39;
+        return {
+            gridSize: 6,
+            mirrorCount: 4 + Math.round(t),            // 4→5
+            wallCount: 1 + Math.round(t),              // 1→2
+            lives: 4,
+            fixedMirrorCount: 1,
+            decoyFillFraction: 0.50 + t * 0.10,        // 0.50→0.60
+            portalPairCount: 1,
+            bombCount: levelNumber >= 65 ? 1 : 0,       // bombs at lvl 65+
+            splitterCount: 0,
+            difficulty: "intermediate",
+        };
+    }
+
+    // ── 7×7 Advanced (81–140) ──
+    // 5→6 mirrors, bombs ramp up, more walls
+    if (levelNumber <= 140) {
+        const t = (levelNumber - 81) / 59;
         return {
             gridSize: 7,
-            mirrorCount: 5,
-            wallCount: 2,
+            mirrorCount: 5 + Math.round(t),            // 5→6
+            wallCount: 2 + Math.round(t),              // 2→3
             lives: 3,
             fixedMirrorCount: 1,
-            decoyFillFraction: 0.55,
+            decoyFillFraction: 0.50 + t * 0.10,        // 0.50→0.60
             portalPairCount: 1,
-            bombCount: 0,
+            bombCount: 1 + Math.round(t),              // 1→2
             splitterCount: 0,
             difficulty: "advanced",
         };
     }
-    if (levelNumber <= 150) {
+
+    // ── 8×8 Expert (141–220) ──
+    // 6→8 mirrors, 2 portals, splitter at end, high decoy
+    if (levelNumber <= 220) {
+        const t = (levelNumber - 141) / 79;
         return {
             gridSize: 8,
-            mirrorCount: 7,
-            wallCount: 3,
+            mirrorCount: 6 + Math.round(t * 2),        // 6→8
+            wallCount: 3 + Math.round(t),              // 3→4
             lives: 2,
             fixedMirrorCount: 2,
-            decoyFillFraction: 0.65,
-            portalPairCount: 1,
+            decoyFillFraction: 0.55 + t * 0.10,        // 0.55→0.65
+            portalPairCount: 1 + (t > 0.5 ? 1 : 0),   // 1→2 at lvl 181+
             bombCount: 2,
-            splitterCount: 0,
+            splitterCount: levelNumber >= 200 ? 1 : 0,  // splitter at 200+
             difficulty: "expert",
         };
     }
-    // 151+: Master
+
+    // ── 9×9 Master I (221–320) ──
+    // 8→9 mirrors, full mechanics, high density
+    if (levelNumber <= 320) {
+        const t = (levelNumber - 221) / 99;
+        return {
+            gridSize: 9,
+            mirrorCount: 8 + Math.round(t),            // 8→9
+            wallCount: 4 + Math.round(t),              // 4→5
+            lives: 1,
+            fixedMirrorCount: 3,
+            decoyFillFraction: 0.65 + t * 0.10,        // 0.65→0.75
+            portalPairCount: 2,
+            bombCount: 3,
+            splitterCount: 1,
+            difficulty: "master",
+        };
+    }
+
+    // ── 10×10 Master II (321–500+) ──
+    // Max everything, plateau
     return {
         gridSize: 10,
         mirrorCount: 10,
@@ -351,7 +418,7 @@ function attemptGeneration(
     };
     cells.set(cellKey(sourceRow, sourceCol), sourceCell);
 
-    // Step 3: Random walk to place solution mirrors
+    // Step 3: Random walk to place solution mirrors + solution portals
     let curRow = sourceRow;
     let curCol = sourceCol;
     let curDir = sourceDir;
@@ -359,7 +426,78 @@ function attemptGeneration(
     pathCells.add(cellKey(sourceRow, sourceCol));
     const solutionMirrors: Cell[] = [];
 
+    // Decide when to insert solution portal (after ~half the mirrors)
+    const insertPortalAfterMirror = config.portalPairCount > 0
+        ? Math.max(1, Math.floor(config.mirrorCount / 2))
+        : -1; // never
+    let solutionPortalPlaced = false;
+    let solutionPortalPairId = 0;
+
     for (let i = 0; i < config.mirrorCount; i++) {
+        // ── Insert solution portal after placing enough mirrors ──
+        if (
+            !solutionPortalPlaced &&
+            config.portalPairCount > 0 &&
+            i === insertPortalAfterMirror
+        ) {
+            // Walk 1 step in current direction for portal A position
+            const paRow = curRow + DR[curDir];
+            const paCol = curCol + DC[curDir];
+
+            if (
+                paRow >= 0 && paRow < size && paCol >= 0 && paCol < size &&
+                !pathCells.has(cellKey(paRow, paCol)) &&
+                grid[paRow][paCol] === "empty"
+            ) {
+                // Find a valid exit position (portal B) — must have room to continue
+                const exitCandidates: { row: number; col: number }[] = [];
+                for (let r = 1; r < size - 1; r++) {
+                    for (let c = 1; c < size - 1; c++) {
+                        if (grid[r][c] !== "empty") continue;
+                        if (pathCells.has(cellKey(r, c))) continue;
+                        if (r === paRow && c === paCol) continue;
+                        // Must have at least 2 empty cells ahead in current direction
+                        // (for next mirror + turn)
+                        const ahead1r = r + DR[curDir];
+                        const ahead1c = c + DC[curDir];
+                        if (ahead1r < 0 || ahead1r >= size || ahead1c < 0 || ahead1c >= size) continue;
+                        if (grid[ahead1r][ahead1c] !== "empty" || pathCells.has(cellKey(ahead1r, ahead1c))) continue;
+                        exitCandidates.push({ row: r, col: c });
+                    }
+                }
+
+                if (exitCandidates.length > 0) {
+                    const exitPos = exitCandidates[Math.floor(rand() * exitCandidates.length)];
+
+                    // Place portal A (entry)
+                    grid[paRow][paCol] = "portal";
+                    const portalA: Cell = {
+                        row: paRow, col: paCol,
+                        type: "portal", portalPairId: solutionPortalPairId,
+                    };
+                    cells.set(cellKey(paRow, paCol), portalA);
+                    pathCells.add(cellKey(paRow, paCol));
+
+                    // Place portal B (exit)
+                    grid[exitPos.row][exitPos.col] = "portal";
+                    const portalB: Cell = {
+                        row: exitPos.row, col: exitPos.col,
+                        type: "portal", portalPairId: solutionPortalPairId,
+                    };
+                    cells.set(cellKey(exitPos.row, exitPos.col), portalB);
+                    pathCells.add(cellKey(exitPos.row, exitPos.col));
+
+                    // Continue walk from portal B
+                    curRow = exitPos.row;
+                    curCol = exitPos.col;
+                    // curDir stays the same (portals preserve direction)
+
+                    solutionPortalPlaced = true;
+                    solutionPortalPairId++;
+                }
+            }
+        }
+
         // Walk 1–3 steps in current direction
         const maxSteps = Math.min(3, size - 2);
         const steps = 1 + Math.floor(rand() * maxSteps);
@@ -444,25 +582,29 @@ function attemptGeneration(
     const traceResult = traceLaser(grid, cells, size);
     if (!traceResult.allTargetsHit) return null;
 
-    // Step 6: Place portal pairs
-    const safeCells = getSafeCells(grid, size, pathCells);
+    // Step 6: Place extra decorative portal pairs (beyond solution portals)
+    const extraPortals = config.portalPairCount - solutionPortalPairId;
+    if (extraPortals > 0) {
+        const safeCells = getSafeCells(grid, size, pathCells);
 
-    for (let p = 0; p < config.portalPairCount; p++) {
-        if (safeCells.length < 2) break;
+        for (let p = 0; p < extraPortals; p++) {
+            if (safeCells.length < 2) break;
 
-        const idx1 = Math.floor(rand() * safeCells.length);
-        const pos1 = safeCells.splice(idx1, 1)[0];
+            const idx1 = Math.floor(rand() * safeCells.length);
+            const pos1 = safeCells.splice(idx1, 1)[0];
 
-        const idx2 = Math.floor(rand() * safeCells.length);
-        const pos2 = safeCells.splice(idx2, 1)[0];
+            const idx2 = Math.floor(rand() * safeCells.length);
+            const pos2 = safeCells.splice(idx2, 1)[0];
 
-        grid[pos1.row][pos1.col] = "portal";
-        grid[pos2.row][pos2.col] = "portal";
+            grid[pos1.row][pos1.col] = "portal";
+            grid[pos2.row][pos2.col] = "portal";
 
-        const portal1: Cell = { row: pos1.row, col: pos1.col, type: "portal", portalPairId: p };
-        const portal2: Cell = { row: pos2.row, col: pos2.col, type: "portal", portalPairId: p };
-        cells.set(cellKey(pos1.row, pos1.col), portal1);
-        cells.set(cellKey(pos2.row, pos2.col), portal2);
+            const pairId = solutionPortalPairId + p;
+            const portal1: Cell = { row: pos1.row, col: pos1.col, type: "portal", portalPairId: pairId };
+            const portal2: Cell = { row: pos2.row, col: pos2.col, type: "portal", portalPairId: pairId };
+            cells.set(cellKey(pos1.row, pos1.col), portal1);
+            cells.set(cellKey(pos2.row, pos2.col), portal2);
+        }
     }
 
     // Step 7: Place bombs near laser path

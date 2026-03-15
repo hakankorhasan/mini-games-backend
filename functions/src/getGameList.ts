@@ -26,7 +26,7 @@ export const getGameList = functions.https.onRequest(async (req, res) => {
             const data = doc.data();
             return {
                 id: doc.id,
-                name: data.name || doc.id,
+                ...data,
                 coefficient: data.leaderboardCoefficient || 1.0,
             };
         });
