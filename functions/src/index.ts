@@ -15,7 +15,7 @@ export { saveStoryProgress, getStoryProgress } from "./storyProgress";
 export { submitScore } from "./submitScore";
 export { getPlayerLeaderboard } from "./getPlayerLeaderboard";
 export { getPlayerStats } from "./getPlayerStats";
-export { getDailyChallenge } from "./numberCircuitDaily";
+export { getDailyChallenge as getNumberCircuitDaily } from "./numberCircuitDaily";
 export { getGlobalLeaderboard } from "./getGlobalLeaderboard";
 export { getGameLeaderboard } from "./getGameLeaderboard";
 export { getGameList } from "./getGameList";
@@ -39,3 +39,15 @@ export { seedNeuralLinkLevels } from "./seedNeuralLinkLevels";
 export { getNeuralLinkLevels } from "./getNeuralLinkLevels";
 export { getAvatars, createProfile, updateProfile, getProfile, checkDevice } from "./userProfile";
 export { getOnboardings } from "./getOnboardings";
+export {
+    getDailyChallenge,
+    submitDailyPuzzle,
+    getDailyProgress,
+    getDailyStreak,
+} from "./dailyChallenge";
+export {
+    registerFCMToken,
+    updateNotificationSettings,
+    sendDailyReminder,
+    sendDailyReminderManual,
+} from "./notifications";

@@ -2,6 +2,13 @@ import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import { getTierByRank } from "./utils/tiers";
 
+const STORAGE_BUCKET = "mini-games-9a4e1.firebasestorage.app";
+
+function getAvatarUrl(avatarId: string | undefined | null): string | null {
+    if (!avatarId) return null;
+    return `https://firebasestorage.googleapis.com/v0/b/${STORAGE_BUCKET}/o/avatars%2F${avatarId}.png?alt=media`;
+}
+
 /**
  * getGlobalLeaderboard
  *
@@ -44,7 +51,7 @@ export const getGlobalLeaderboard = functions.https.onRequest(async (req, res) =
             return {
                 uid: doc.id,
                 nickname: data.nickname || data.username || "Unknown",
-                avatarUrl: data.avatarUrl || null,
+                avatarUrl: getAvatarUrl(data.avatarId) || data.avatarUrl || null,
                 weightedGlobalScore: data.weightedGlobalScore || 0,
                 globalScore: doc.data().globalScore || 0,
                 tier: getTierByRank(rank),

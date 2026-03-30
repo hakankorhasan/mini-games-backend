@@ -1,6 +1,13 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 
+const STORAGE_BUCKET = "mini-games-9a4e1.firebasestorage.app";
+
+function getAvatarUrl(avatarId: string | undefined | null): string | null {
+    if (!avatarId) return null;
+    return `https://firebasestorage.googleapis.com/v0/b/${STORAGE_BUCKET}/o/avatars%2F${avatarId}.png?alt=media`;
+}
+
 /**
  * getGameLeaderboard
  *
@@ -66,7 +73,7 @@ export const getGameLeaderboard = functions.https.onRequest(async (req, res) => 
                     if (userDoc.exists) {
                         const userData = userDoc.data();
                         nickname = userData?.nickname || userData?.username || "Unknown";
-                        avatarUrl = userData?.avatarUrl || null;
+                        avatarUrl = getAvatarUrl(userData?.avatarId) || userData?.avatarUrl || null;
                     }
                 } catch (_e) {
                     // ignore
