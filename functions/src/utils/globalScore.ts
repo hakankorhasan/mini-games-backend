@@ -14,6 +14,8 @@ export interface GlobalScoreInput {
     correct: boolean;
     responseTime: number;    // seconds
     currentStreak: number;   // consecutive correct answers before this game
+    hintsUsed?: number;      // how many hints used
+    gameId?: string;         // identifier of game (e.g. wordPuzzle)
 }
 
 export interface GlobalScoreResult {
@@ -55,13 +57,35 @@ function getStreakBonus(streak: number): number {
 }
 
 export function calculateGlobalScore(input: GlobalScoreInput): GlobalScoreResult {
-    const { difficulty, correct, responseTime, currentStreak } = input;
+    const { difficulty, correct, responseTime, currentStreak, hintsUsed = 0, gameId } = input;
 
     if (!correct) {
         return { scoreGained: 0, newStreak: 0 };
     }
 
-    const basePoints = difficulty * 15;
+    let basePoints = difficulty * 15;
+    
+    // Hint penalty logic
+    if (hintsUsed > 0) {
+        if (gameId === "wordPuzzle") {
+            if (hintsUsed >= difficulty) {
+                // If the user used hints for all letters, they get 0 points.
+                basePoints = 0;
+            } else {
+                // For wordPuzzle, difficulty is wordLength (meaning maxHints = difficulty).
+                // Penalty per hint = 0.8 / difficulty.
+                const maxPenalty = 0.8;
+                const penaltyPerHint = maxPenalty / Math.max(1, difficulty);
+                const multiplier = Math.max(0.2, 1.0 - (hintsUsed * penaltyPerHint));
+                basePoints = basePoints * multiplier;
+            }
+        } else {
+            // Generic fallback penalty for other games if they add hints later
+            const multiplier = Math.max(0.1, Math.pow(0.85, hintsUsed));
+            basePoints = basePoints * multiplier;
+        }
+    }
+
     const speedBonus = getSpeedBonus(responseTime);
     const newStreak = currentStreak + 1;
     const streakBonus = getStreakBonus(newStreak);

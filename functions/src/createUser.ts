@@ -22,8 +22,16 @@ export const createUser = functions.auth.user().onCreate(async (user) => {
         weightedGlobalScore: 0,
         currentStreak: 0,
         bestStreak: 0,
+        // Profile setup fields — populated when user completes profile screen
+        profileCompleted: false,
+        nickname: null,
+        nicknameLower: null,
+        avatarId: null,
+        avatarUrl: null,
+        age: null,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
         lastActive: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     };
 
     await db.collection("users").doc(user.uid).set(userData);

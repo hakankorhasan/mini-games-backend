@@ -35,7 +35,7 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
     }
 
     try {
-        const { deviceId, gameId, level, difficulty, correct, responseTime, isStoryMode } = req.body;
+        const { deviceId, gameId, level, difficulty, correct, responseTime, isStoryMode, hintsUsed } = req.body;
 
         // 1. DeviceId validation
         if (!deviceId || typeof deviceId !== "string") {
@@ -107,6 +107,8 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
                     correct,
                     responseTime,
                     currentStreak: newStreak,
+                    hintsUsed: typeof hintsUsed === "number" ? hintsUsed : 0,
+                    gameId,
                 });
                 scoreGained = globalResult.scoreGained;
                 newStreak = globalResult.newStreak;
@@ -187,12 +189,15 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
 
                 return {
                     improved: true,
+                    previousRating: 0,
                     newRating,
                     ratingChange,
                     tier,
                     scoreGained,
                     newStreak,
                     previousBest: 0,
+                    previousGlobalScore: 0,
+                    globalScoreChange: scoreGained,
                     weightedGlobalScore: playWeightedScore,
                     gameStats: isStoryMode ? null : {
                         gameId,
@@ -246,18 +251,22 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
                 }
 
                 const currentWeighted = userDoc.data()!.weightedGlobalScore || 0;
+                const currentGlobalScore = userDoc.data()!.globalScore || 0;
                 const currentGameWeightedScore = gameStatsDoc.exists
                     ? (gameStatsDoc.data()!.weightedScore || 0)
                     : 0;
 
                 return {
                     improved: false,
+                    previousRating: currentRating,
                     newRating: currentRating,
                     ratingChange: 0,
                     tier: getTier(currentRating),
                     scoreGained,
                     newStreak,
                     previousBest: previousBestScore,
+                    previousGlobalScore: currentGlobalScore,
+                    globalScoreChange: 0,
                     weightedGlobalScore: currentWeighted + playWeightedScore,
                     gameStats: isStoryMode ? null : {
                         gameId,
@@ -340,15 +349,19 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
 
             const finalRating = currentRating + ratingDelta;
             const currentWeightedGlobal = userDoc.data()!.weightedGlobalScore || 0;
+            const currentGlobalScore = userDoc.data()!.globalScore || 0;
 
             return {
                 improved: true,
+                previousRating: currentRating,
                 newRating: finalRating,
                 ratingChange: ratingDelta,
                 tier: getTier(finalRating),
                 scoreGained,
                 newStreak,
                 previousBest: previousBestScore,
+                previousGlobalScore: currentGlobalScore,
+                globalScoreChange: scoreDelta,
                 weightedGlobalScore: currentWeightedGlobal + playWeightedScore,
                 gameStats: {
                     gameId,

@@ -60,6 +60,35 @@ export const getWordPuzzleLevel = functions.https.onRequest(
                 return;
             }
 
+            // ── Level gating: önceki level tamamlanmadan sonraki levele geçilemez ──
+            const db = admin.firestore();
+            if (levelNumber > 1) {
+                const progressDoc = await db
+                    .collection("gameProgress")
+                    .doc(deviceId)
+                    .collection("games")
+                    .doc("wordPuzzle")
+                    .get();
+
+                const completedLevels: number[] = progressDoc.exists
+                    ? (progressDoc.data()!.completedLevels || [])
+                    : [];
+
+                const previousLevel = levelNumber - 1;
+                if (!completedLevels.includes(previousLevel)) {
+                    // Kullanıcının erişebileceği en yüksek leveli bul
+                    const maxAccessible = completedLevels.length > 0
+                        ? Math.max(...completedLevels) + 1
+                        : 1;
+                    res.status(403).json({
+                        success: false,
+                        error: `Level ${levelNumber}'e erişmek için önce Level ${previousLevel}'i tamamlamalısınız.`,
+                        currentLevel: Math.min(maxAccessible, TOTAL_LEVELS),
+                    });
+                    return;
+                }
+            }
+
             const levelInfo = getLevelInfo(levelNumber);
             if (!levelInfo) {
                 res.status(404).json({
@@ -69,7 +98,7 @@ export const getWordPuzzleLevel = functions.https.onRequest(
                 return;
             }
 
-            const db = admin.firestore();
+            // db is already declared above (level gating)
             const sessionId = `${deviceId}_level_${levelNumber}`;
             const sessionRef = db
                 .collection("wordPuzzleSessions")
@@ -92,6 +121,8 @@ export const getWordPuzzleLevel = functions.https.onRequest(
                         attemptsUsed: session.attemptsUsed || 0,
                         solved: session.solved || false,
                         failed: session.failed || false,
+                        hintsUsed: session.hintsUsed || 0,
+                        hints: session.hints || [],
                     },
                 });
                 return;
@@ -124,6 +155,8 @@ export const getWordPuzzleLevel = functions.https.onRequest(
                 attemptsUsed: 0,
                 solved: false,
                 failed: false,
+                hintsUsed: 0,
+                hints: [],
                 createdAt: admin.firestore.FieldValue.serverTimestamp(),
                 updatedAt: admin.firestore.FieldValue.serverTimestamp(),
             });
@@ -141,6 +174,8 @@ export const getWordPuzzleLevel = functions.https.onRequest(
                     attemptsUsed: 0,
                     solved: false,
                     failed: false,
+                    hintsUsed: 0,
+                    hints: [],
                 },
             });
         } catch (error) {
@@ -277,6 +312,39 @@ export const checkWordPuzzleGuess = functions.https.onRequest(
                 updatedAt: admin.firestore.FieldValue.serverTimestamp(),
             });
 
+            // ── Level tamamlandıysa gameProgress'i otomatik güncelle ──
+            if (solved) {
+                const progressRef = db
+                    .collection("gameProgress")
+                    .doc(deviceId)
+                    .collection("games")
+                    .doc("wordPuzzle");
+                const progressDoc = await progressRef.get();
+
+                const completedLevels: number[] = progressDoc.exists
+                    ? (progressDoc.data()!.completedLevels || [])
+                    : [];
+
+                if (!completedLevels.includes(levelNumber)) {
+                    completedLevels.push(levelNumber);
+                    completedLevels.sort((a: number, b: number) => a - b);
+                }
+
+                const nextLevel = levelNumber + 1 <= TOTAL_LEVELS
+                    ? levelNumber + 1
+                    : levelNumber;
+
+                await progressRef.set(
+                    {
+                        gameId: "wordPuzzle",
+                        currentLevel: nextLevel,
+                        completedLevels,
+                        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                    },
+                    { merge: true }
+                );
+            }
+
             const response: Record<string, unknown> = {
                 success: true,
                 result,
@@ -288,6 +356,13 @@ export const checkWordPuzzleGuess = functions.https.onRequest(
 
             if (solved || failed) {
                 response.answer = answer;
+            }
+
+            // Çözüldüyse bir sonraki level bilgisini de dön
+            if (solved) {
+                response.nextLevel = levelNumber + 1 <= TOTAL_LEVELS
+                    ? levelNumber + 1
+                    : null;
             }
 
             res.status(200).json(response);
@@ -442,8 +517,8 @@ export const getWordPuzzleHint = functions.https.onRequest(
                 return;
             }
 
-            // Check hint limit
-            const maxHints = wordLength >= 7 ? 2 : 1;
+            // Check hint limit (max hints = word length)
+            const maxHints = wordLength;
             const hintsUsed = session.hintsUsed || 0;
 
             if (hintsUsed >= maxHints) {
@@ -454,10 +529,23 @@ export const getWordPuzzleHint = functions.https.onRequest(
                 return;
             }
 
-            // Find unrevealed positions
+            // Find positions the user already guessed correctly (green)
+            const correctlyGuessedPositions = new Set<number>();
+            const guesses = session.guesses || [];
+            for (const g of guesses) {
+                if (Array.isArray(g.result)) {
+                    for (let i = 0; i < g.result.length; i++) {
+                        if (g.result[i].status === "correct") {
+                            correctlyGuessedPositions.add(i);
+                        }
+                    }
+                }
+            }
+
+            // Find unrevealed positions (exclude both hints AND correctly guessed)
             const availablePositions: number[] = [];
             for (let i = 0; i < wordLength; i++) {
-                if (!revealed.includes(i)) {
+                if (!revealed.includes(i) && !correctlyGuessedPositions.has(i)) {
                     availablePositions.push(i);
                 }
             }
@@ -477,9 +565,13 @@ export const getWordPuzzleHint = functions.https.onRequest(
             const position = availablePositions[randomIndex];
             const letter = word[position];
 
-            // Update hints used in session
+            // Update session with new hint
+            const currentHints = session.hints || [];
+            currentHints.push({ letter, position });
+
             await sessionRef.update({
                 hintsUsed: hintsUsed + 1,
+                hints: currentHints,
                 updatedAt: admin.firestore.FieldValue.serverTimestamp(),
             });
 
