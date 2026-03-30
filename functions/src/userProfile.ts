@@ -8,7 +8,7 @@ import * as admin from "firebase-admin";
 const STORAGE_BUCKET = "mini-games-9a4e1.firebasestorage.app";
 
 function getAvatarUrl(avatarId: string): string {
-    return `https://storage.googleapis.com/${STORAGE_BUCKET}/avatars/${avatarId}.png`;
+    return `https://firebasestorage.googleapis.com/v0/b/${STORAGE_BUCKET}/o/avatars%2F${avatarId}.png?alt=media`;
 }
 
 // ─────────────────────────────────────────────────────────
@@ -66,7 +66,7 @@ export const getAvatars = functions.https.onRequest(async (req, res) => {
                 const id = fileName.replace(".png", "");
                 return {
                     id,
-                    url: `https://storage.googleapis.com/${STORAGE_BUCKET}/${file.name}`,
+                    url: `https://firebasestorage.googleapis.com/v0/b/${STORAGE_BUCKET}/o/${encodeURIComponent(file.name)}?alt=media`,
                 };
             })
             .sort((a, b) => a.id.localeCompare(b.id));

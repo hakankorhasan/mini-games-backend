@@ -40,10 +40,12 @@ export const getGlobalLeaderboard = functions.https.onRequest(async (req, res) =
 
         const players = snapshot.docs.map((doc, index) => {
             const rank = index + 1;
+            const data = doc.data();
             return {
                 uid: doc.id,
-                username: doc.data().username || "Unknown",
-                weightedGlobalScore: doc.data().weightedGlobalScore || 0,
+                nickname: data.nickname || data.username || "Unknown",
+                avatarUrl: data.avatarUrl || null,
+                weightedGlobalScore: data.weightedGlobalScore || 0,
                 globalScore: doc.data().globalScore || 0,
                 tier: getTierByRank(rank),
                 gamesPlayed: doc.data().gamesPlayed || 0,

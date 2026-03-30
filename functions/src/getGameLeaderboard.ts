@@ -58,12 +58,15 @@ export const getGameLeaderboard = functions.https.onRequest(async (req, res) => 
                 const data = doc.data();
                 const parentDeviceId = doc.ref.parent.parent?.id || "unknown";
 
-                // Fetch username from parent user doc
-                let username = "Unknown";
+                // Fetch nickname and avatar from parent user doc
+                let nickname = "Unknown";
+                let avatarUrl: string | null = null;
                 try {
                     const userDoc = await db.collection("users").doc(parentDeviceId).get();
                     if (userDoc.exists) {
-                        username = userDoc.data()?.username || "Unknown";
+                        const userData = userDoc.data();
+                        nickname = userData?.nickname || userData?.username || "Unknown";
+                        avatarUrl = userData?.avatarUrl || null;
                     }
                 } catch (_e) {
                     // ignore
@@ -72,7 +75,8 @@ export const getGameLeaderboard = functions.https.onRequest(async (req, res) => 
                 return {
                     rank: index + 1,
                     deviceId: parentDeviceId,
-                    username,
+                    nickname,
+                    avatarUrl,
                     bestScore: data.bestScore || 0,
                     weightedScore: Math.round((data.bestScore || 0) * coefficient),
                     gamesPlayed: data.gamesPlayed || 0,
