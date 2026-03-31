@@ -22,6 +22,14 @@ export const createUser = functions.auth.user().onCreate(async (user) => {
         weightedGlobalScore: 0,
         currentStreak: 0,
         bestStreak: 0,
+        // Premium status — managed by verifyPurchase Cloud Function
+        premium: {
+            removeAds: false,
+            storyMode: false,
+            ultimateBundle: false,
+            purchases: [],
+            lastVerifiedAt: null,
+        },
         // Profile setup fields — populated when user completes profile screen
         profileCompleted: false,
         nickname: null,

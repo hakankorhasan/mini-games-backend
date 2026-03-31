@@ -46,6 +46,7 @@ export {
     getDailyProgress,
     getDailyStreak,
 } from "./dailyChallenge";
+export { verifyPurchase, getPremiumStatus, handleAppStoreNotification } from "./premium";
 export {
     registerFCMToken,
     updateNotificationSettings,

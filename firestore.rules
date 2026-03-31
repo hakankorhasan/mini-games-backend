@@ -7,14 +7,20 @@ service cloud.firestore {
       allow read: if true;
 
       // Client can only update username and country
-      // Rating, tier, seasonRating, gamesPlayed, correctAnswers, globalScore, weightedGlobalScore, streaks are server-only
+      // Rating, tier, seasonRating, gamesPlayed, correctAnswers, globalScore, weightedGlobalScore, streaks, premium are server-only
       allow update: if !request.resource.data.diff(resource.data).affectedKeys()
                         .hasAny(['rating', 'tier', 'seasonRating', 'gamesPlayed', 'correctAnswers',
-                                 'globalScore', 'weightedGlobalScore', 'currentStreak', 'bestStreak']);
+                                 'globalScore', 'weightedGlobalScore', 'currentStreak', 'bestStreak',
+                                 'premium']);
 
       // User docs are created by Cloud Functions (deviceId-based)
       allow create: if false;
       allow delete: if false;
+    }
+
+    // Purchase lookup: server-only (used for App Store notifications)
+    match /purchaseLookup/{transactionId} {
+      allow read, write: if false;
     }
 
     // Per-game stats: public read, Cloud Functions write

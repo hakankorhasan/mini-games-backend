@@ -350,7 +350,15 @@ export const checkDevice = functions.https.onRequest(async (req, res) => {
         const userDoc = await userRef.get();
 
         if (!userDoc.exists) {
-            res.status(200).json({ success: true, isRegistered: false });
+            res.status(200).json({
+                success: true,
+                isRegistered: false,
+                premium: {
+                    removeAds: false,
+                    storyMode: false,
+                    ultimateBundle: false,
+                },
+            });
             return;
         }
 
@@ -366,7 +374,12 @@ export const checkDevice = functions.https.onRequest(async (req, res) => {
                 avatarId: data?.avatarId ?? null,
                 avatarUrl: data?.avatarUrl ?? null,
                 age: data?.age ?? null,
-            } : null
+            } : null,
+            premium: {
+                removeAds: data?.premium?.removeAds ?? false,
+                storyMode: data?.premium?.storyMode ?? false,
+                ultimateBundle: data?.premium?.ultimateBundle ?? false,
+            },
         });
     } catch (error) {
         functions.logger.error("checkDevice failed", error);

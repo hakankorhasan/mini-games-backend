@@ -40,6 +40,21 @@ export const saveStoryProgress = functions.https.onRequest(async (req, res) => {
 
         const db = admin.firestore();
 
+        // ── Premium check: Level 2+ requires storyMode or ultimateBundle ──
+        if (levelOrder > 1) {
+            const userDoc = await db.collection("users").doc(deviceId).get();
+            const premium = userDoc.data()?.premium || {};
+
+            if (!premium.storyMode && !premium.ultimateBundle) {
+                res.status(403).json({
+                    success: false,
+                    error: "purchase_required",
+                    message: "Story Mode Pack required for Level 2+",
+                });
+                return;
+            }
+        }
+
         const progressRef = db
             .collection("storyProgress")
             .doc(deviceId)
