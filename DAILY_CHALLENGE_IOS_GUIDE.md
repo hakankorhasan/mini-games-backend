@@ -22,11 +22,11 @@ Günün 5 puzzle'ını, kullanıcının ilerleme durumunu ve streak bilgisini d�
     "success": true,
     "date": "2026-03-31",
     "puzzles": [
-        { "puzzleIndex": 1, "gameId": "wordPuzzle", "difficulty": 4 },
-        { "puzzleIndex": 2, "gameId": "numberCircuit", "difficulty": 5 },
-        { "puzzleIndex": 3, "gameId": "blockFit", "difficulty": 3 },
-        { "puzzleIndex": 4, "gameId": "laserPuzzle", "difficulty": 6 },
-        { "puzzleIndex": 5, "gameId": "slitherlink", "difficulty": 4 }
+        { "puzzleIndex": 1, "gameId": "wordPuzzle" },
+        { "puzzleIndex": 2, "gameId": "numberCircuit" },
+        { "puzzleIndex": 3, "gameId": "blockFit" },
+        { "puzzleIndex": 4, "gameId": "laserPuzzle" },
+        { "puzzleIndex": 5, "gameId": "slitherlink" }
     ],
     "progress": {
         "completedPuzzles": [1, 3],
@@ -65,9 +65,12 @@ Bir puzzle sonucu gönderir. 5/5 tamamlandığında otomatik streak güncellenir
     "puzzleIndex": 2,
     "correct": true,
     "responseTime": 18.5,
-    "gameId": "numberCircuit"
+    "gameId": "numberCircuit",
+    "difficulty": 5
 }
 ```
+
+> **ÖNEMLi NOT:** Backend artık rastgele bir zorluk ataması YAPMAZ. Kullanıcı o oyunda mevcutta hangi seviyedeyse o seviyede oynar ve oyun bittiğinde oynadığı bu güncel `difficulty` seviyesini request body içerisine ekleyerek backend'e gönderir. Skor getirisi buna göre hesaplanır.
 
 **Response (devam eden):**
 ```json
@@ -156,15 +159,17 @@ Streak istatistikleri.
 
 ## Bonus Puan Tablosu
 
+Oyuncu o günkü 5 görevin tamamını (5/5) çözdüğünde, sistem otomatik olarak aşağıdaki bonusları kazanır. **Bu bonusların tamamı backend tarafından hesaplanır ve doğrudan Firestore'a kaydedilir.** Ayrıca bu puanlar günlük görev katsayısıyla (1.5x) oyuncunun `weightedGlobalScore` değerine kalıcı olarak eklenir.
+
 | Koşul | Bonus |
 |--------|-------|
-| 5/5 tamamlama (base) | **+100** |
-| 3+ gün streak | **+25** ekstra |
-| 7+ gün streak | **+50** ekstra |
-| 14+ gün streak | **+100** ekstra |
-| 30+ gün streak | **+150** ekstra |
+| 5/5 tamamlama (Temel) | **100 Puan** |
+| 3+ Günlük Seri | **+25 Puan** ekstra |
+| 7+ Günlük Seri | **+50 Puan** ekstra |
+| 14+ Günlük Seri | **+100 Puan** ekstra |
+| 30+ Günlük Seri | **+150 Puan** ekstra |
 
-> Bonuslar kümülatif DEĞİLDİR. En yüksek eşik uygulanır.
+> **Not:** Bonuslar kümülatif DEĞİLDİR. Yalnızca bulunduğunuz serinin en yüksek eşiği temele eklenir. Örneğin 8 günlük serisi olan bir oyuncu, 5 görevi tamamladığında (100 Temel + 50 Ekstra) toplam 150 bonus puan kazanır. Backend'e kalıcı olarak işlenir.
 
 ---
 

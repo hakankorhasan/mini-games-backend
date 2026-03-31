@@ -134,7 +134,7 @@ export const getDailyChallenge = functions.https.onRequest(async (req, res) => {
 //  submitDailyPuzzle
 //
 //  POST /submitDailyPuzzle
-//  Body: { deviceId, puzzleIndex, correct, responseTime, gameId }
+//  Body: { deviceId, puzzleIndex, correct, responseTime, gameId, difficulty }
 //
 //  Records a single puzzle result. When 5/5 completed,
 //  updates streak and adds bonus to global score.
@@ -147,7 +147,7 @@ export const submitDailyPuzzle = functions.https.onRequest(async (req, res) => {
     }
 
     try {
-        const { deviceId, puzzleIndex, correct, responseTime, gameId } = req.body;
+        const { deviceId, puzzleIndex, correct, responseTime, gameId, difficulty } = req.body;
 
         // ── Validate inputs ──
         if (!deviceId || typeof deviceId !== "string") {
@@ -168,6 +168,10 @@ export const submitDailyPuzzle = functions.https.onRequest(async (req, res) => {
         }
         if (!gameId || typeof gameId !== "string") {
             res.status(400).json({ success: false, error: "gameId is required." });
+            return;
+        }
+        if (typeof difficulty !== "number" || difficulty < 1) {
+            res.status(400).json({ success: false, error: "difficulty must be a positive number." });
             return;
         }
 
@@ -214,6 +218,7 @@ export const submitDailyPuzzle = functions.https.onRequest(async (req, res) => {
                 responseTime: number;
                 correct: boolean;
                 gameId: string;
+                difficulty: number;
                 completedAt: string;
             }> = {};
             let totalScore = 0;
@@ -240,7 +245,6 @@ export const submitDailyPuzzle = functions.https.onRequest(async (req, res) => {
             }
 
             // ── Calculate puzzle score ──
-            const difficulty = expectedPuzzle.difficulty;
             const { scoreGained } = calculateGlobalScore({
                 difficulty,
                 correct,
@@ -259,6 +263,7 @@ export const submitDailyPuzzle = functions.https.onRequest(async (req, res) => {
                 responseTime,
                 correct,
                 gameId,
+                difficulty,
                 completedAt: new Date().toISOString(),
             };
 
