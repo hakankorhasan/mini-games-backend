@@ -41,7 +41,10 @@ export const saveStoryProgress = functions.https.onRequest(async (req, res) => {
         const db = admin.firestore();
 
         // ── Premium check: Level 2+ requires storyMode or ultimateBundle ──
-        if (levelOrder > 1) {
+        // We allow levelOrder === 2 && eventOrder === 1 because it represents the completion of Level 1.
+        // Anything beyond that (level 2 event 2, or level 3+) requires premium.
+        const isTransitionToLevel2 = (levelOrder === 2 && eventOrder === 1);
+        if (levelOrder > 2 || (levelOrder === 2 && !isTransitionToLevel2)) {
             const userDoc = await db.collection("users").doc(deviceId).get();
             const premium = userDoc.data()?.premium || {};
 
