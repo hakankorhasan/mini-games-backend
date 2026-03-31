@@ -1,6 +1,6 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import { getTierByRank } from "./utils/tiers";
+import { getTierByScore } from "./utils/tiers";
 
 const STORAGE_BUCKET = "mini-games-9a4e1.firebasestorage.app";
 
@@ -54,7 +54,7 @@ export const getGlobalLeaderboard = functions.https.onRequest(async (req, res) =
                 avatarUrl: getAvatarUrl(data.avatarId) || data.avatarUrl || null,
                 weightedGlobalScore: data.weightedGlobalScore || 0,
                 globalScore: doc.data().globalScore || 0,
-                tier: getTierByRank(rank),
+                tier: getTierByScore(data.weightedGlobalScore || 0),
                 gamesPlayed: doc.data().gamesPlayed || 0,
                 bestStreak: doc.data().bestStreak || 0,
                 rank,
@@ -89,7 +89,7 @@ export const getGlobalLeaderboard = functions.https.onRequest(async (req, res) =
             }
         }
 
-        const myTier = myRank > 0 ? getTierByRank(myRank) : "Bronze";
+        const myTier = myRank > 0 ? getTierByScore(myScore) : "Bronze";
         res.status(200).json({ success: true, players, myRank, myScore, myTier });
     } catch (error) {
         functions.logger.error("getGlobalLeaderboard failed", error);

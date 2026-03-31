@@ -20,6 +20,7 @@ export { getGlobalLeaderboard } from "./getGlobalLeaderboard";
 export { getGameLeaderboard } from "./getGameLeaderboard";
 export { getGameList } from "./getGameList";
 export { getPlayerGameScores } from "./getPlayerGameScores";
+export { getPlayerProfile } from "./getPlayerProfile";
 export { seedNonogramLevels } from "./seedNonogramLevels";
 export { getNonogramLevels } from "./getNonogramLevels";
 export { saveNonogramProgress, getNonogramProgress } from "./nonogramProgress";

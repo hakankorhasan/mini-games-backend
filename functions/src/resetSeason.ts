@@ -1,6 +1,6 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import { getTier } from "./utils/tiers";
+import { getTierByScore } from "./utils/tiers";
 
 /**
  * resetSeason
@@ -79,7 +79,8 @@ async function performSeasonReset(): Promise<void> {
             const oldRating = doc.data().rating || 1000;
             // Soft reset: pull everyone toward 1000
             const newSeasonRating = Math.round(1000 + (oldRating - 1000) * 0.5);
-            const tier = getTier(newSeasonRating);
+            const weightedScore = doc.data().weightedGlobalScore || 0;
+            const tier = getTierByScore(weightedScore);
 
             userBatch.update(doc.ref, {
                 seasonRating: newSeasonRating,

@@ -47,7 +47,7 @@ export const getPlayerGameScores = functions.https.onRequest(async (req, res) =>
         }
 
         const userData = userDoc.data()!;
-        const username = userData.username || "Unknown";
+        const username = userData.nickname || userData.username || "Unknown";
         const weightedGlobalScore = userData.weightedGlobalScore || 0;
 
         // Get all gameStats subcollection docs

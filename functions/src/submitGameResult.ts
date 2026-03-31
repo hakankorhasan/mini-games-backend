@@ -1,7 +1,7 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import { calculateRatingChange } from "./utils/rating";
-import { getTier } from "./utils/tiers";
+import { getTierByScore } from "./utils/tiers";
 import { calculateGlobalScore } from "./utils/globalScore";
 import { validateGameResult } from "./utils/validation";
 import { getCoefficient } from "./utils/gameCoefficients";
@@ -91,7 +91,7 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
                 responseTime,
             });
 
-            const tier = getTier(newRating);
+            const tier = getTierByScore(0); // New user, no weighted score yet
 
             let scoreGained = 0;
             let newStreak = userDoc.exists
@@ -148,7 +148,7 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
                     username: `Player_${deviceId.substring(0, 6)}`,
                     rating: newRating,
                     seasonRating: 0,
-                    tier: tier,
+                    tier: getTierByScore(playWeightedScore),
                     country: "",
                     gamesPlayed: 1,
                     correctAnswers: correct ? 1 : 0,
@@ -261,7 +261,7 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
                     previousRating: currentRating,
                     newRating: currentRating,
                     ratingChange: 0,
-                    tier: getTier(currentRating),
+                    tier: getTierByScore(currentWeighted + playWeightedScore),
                     scoreGained,
                     newStreak,
                     previousBest: previousBestScore,
@@ -282,10 +282,12 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
             const scoreDelta = scoreGained - previousBestScore;
             const ratingDelta = ratingChange - previousBestRating;
             const newGameBest = Math.max(currentGameBest, scoreGained);
+            const currentWeightedGlobal = userDoc.data()!.weightedGlobalScore || 0;
+            const currentGlobalScore = userDoc.data()!.globalScore || 0;
 
             const updateData: Record<string, unknown> = {
                 rating: currentRating + ratingDelta,
-                tier: getTier(currentRating + ratingDelta),
+                tier: getTierByScore(currentWeightedGlobal + playWeightedScore),
                 gamesPlayed: admin.firestore.FieldValue.increment(1),
                 correctAnswers: correct
                     ? admin.firestore.FieldValue.increment(1)
@@ -348,15 +350,13 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
             }
 
             const finalRating = currentRating + ratingDelta;
-            const currentWeightedGlobal = userDoc.data()!.weightedGlobalScore || 0;
-            const currentGlobalScore = userDoc.data()!.globalScore || 0;
 
             return {
                 improved: true,
                 previousRating: currentRating,
                 newRating: finalRating,
                 ratingChange: ratingDelta,
-                tier: getTier(finalRating),
+                tier: getTierByScore(currentWeightedGlobal + playWeightedScore),
                 scoreGained,
                 newStreak,
                 previousBest: previousBestScore,
