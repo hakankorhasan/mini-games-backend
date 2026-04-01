@@ -107,10 +107,53 @@ export const seedStories = functions.https.onRequest(async (_req, res) => {
             resolvedStories.push(resolved);
         }
 
-        // Write to Firestore
+        // Write individual stories to Firestore
         for (const story of resolvedStories) {
             const ref = db.collection("gameStories").doc(story.id);
             batch.set(ref, story);
+        }
+
+        // Fetch global story sliders
+        const bucket = admin.storage().bucket();
+        const prefix = "story_sliders/";
+        const [sliderFiles] = await bucket.getFiles({ prefix });
+        
+        // Sort files by name so slider_1, slider_2 are in predictable order
+        sliderFiles.sort((a, b) => a.name.localeCompare(b.name));
+        
+        const sliderMedia: { id: string, type: string, url: string, badge: string, order: number }[] = [];
+        let index = 1;
+
+        for (const file of sliderFiles) {
+            if (file.name.endsWith("/")) continue; // skip folders
+
+            try { await file.makePublic(); } catch (_e) {}
+            const publicUrl = `https://storage.googleapis.com/${bucket.name}/${file.name}`;
+            const isVideo = file.name.match(/\.(mp4|mov|avi|webm|mkv)$/i);
+            const type = isVideo ? "video" : "image";
+            
+            const fileName = file.name.split("/").pop() || file.name;
+            const docId = fileName.split(".")[0] || `slider_${index}`;
+
+            let badge = "";
+            if (fileName.includes("slider_1")) {
+                badge = "popular";
+            } else if (fileName.includes("slider_4")) {
+                badge = "new";
+            }
+            
+            // Try to extract an order number from the filename
+            const matchIndex = fileName.match(/\d+/);
+            const orderNum = matchIndex ? parseInt(matchIndex[0], 10) : index;
+
+            sliderMedia.push({ id: docId, type, url: publicUrl, badge, order: orderNum });
+            index++;
+        }
+        
+        // Write the global story sliders to a 'storySliders' collection
+        for (const slider of sliderMedia) {
+            const sliderRef = db.collection("storySliders").doc(slider.id);
+            batch.set(sliderRef, slider);
         }
 
         await batch.commit();
@@ -118,6 +161,7 @@ export const seedStories = functions.https.onRequest(async (_req, res) => {
         res.status(200).json({
             success: true,
             stories: resolvedStories,
+            globalSliders: sliderMedia
         });
     } catch (error) {
         functions.logger.error("seedStories failed", error);

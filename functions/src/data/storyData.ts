@@ -19,6 +19,7 @@ const nlStory01: GameStory = {
     coverImageURL: "https://firebasestorage.googleapis.com/v0/b/mini-games-9a4e1.appspot.com/o/story_assets%2Fnl_story_01%2Fcover.png?alt=media",
     themeColors: ["#00E5FF", "#AA00FF"],
     order: 1,
+    badges: ["new", "popular"],
     levels: [
         {
             order: 1,

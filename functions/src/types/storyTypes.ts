@@ -48,5 +48,6 @@ export interface GameStory {
     coverImageURL: string | null;
     themeColors: string[];
     order: number;
+    badges?: string[];           // e.g. ["new", "popular"]
     levels: StoryLevel[];
 }

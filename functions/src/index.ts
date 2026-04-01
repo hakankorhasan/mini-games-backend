@@ -56,3 +56,4 @@ export {
 } from "./notifications";
 export { seedStarBattleLevels } from "./seedStarBattleLevels";
 export { getStarBattleLevels } from "./getStarBattleLevels";
+export { getStorySliders } from "./getStorySliders";
