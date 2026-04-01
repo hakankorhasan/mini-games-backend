@@ -54,3 +54,5 @@ export {
     sendDailyReminder,
     sendDailyReminderManual,
 } from "./notifications";
+export { seedStarBattleLevels } from "./seedStarBattleLevels";
+export { getStarBattleLevels } from "./getStarBattleLevels";
