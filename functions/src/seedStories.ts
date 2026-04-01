@@ -15,7 +15,10 @@ import { GameStory } from "./types/storyTypes";
  * Any file with "level_X_event_Y" → artifactImageURL for that level's Y-th event
  */
 // Storage folder name mapping (in case folder names differ from story IDs)
-const storageFolderMap: Record<string, string> = {};
+const storageFolderMap: Record<string, string> = {
+    "nl_story_01": "n1_story_01",
+    "nl_story_02": "n1_story_02"
+};
 
 async function resolveImageURLs(story: GameStory): Promise<GameStory> {
     const bucket = admin.storage().bucket();
