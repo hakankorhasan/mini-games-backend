@@ -1,59 +1,64 @@
 # Story Mode iOS Implementation Guide
 
-Bu doküman, Story Mode sayfasında yapılacak yeni UI güncellemeleri (Global Slider ve Badge Sistemi) için iOS tarafında yapılması gereken backend entegrasyonlarını içerir.
+This document covers the iOS integration for the new Story Mode page features: **Global Slider** and **Badge System**.
 
-## 1. Global Story Sliders (En Üstteki Slider)
+---
 
-Story Mode sayfasının en üstünde yer alacak olan slider görselleri (fotoğraf veya video), artık oyunlardan bağımsız olarak dinamik bir şekilde Firestore'dan gelmektedir.
+## 1. Global Story Sliders (Top Slider)
 
-### Firestore Yolu
-- **Collection Adı:** `storySliders`
+The slider at the top of the Story Mode page displays promotional media (photos or videos). These are fetched dynamically from a dedicated API endpoint — not hardcoded.
 
-### Veri Modeli (SwiftUI için Örnek)
+### Endpoint
 
-```swift
-import FirebaseFirestore
-
-struct StorySlider: Identifiable, Codable {
-    @DocumentID var id: String?
-    let type: String    // "video" veya "image"
-    let url: String     // Medyanın indirme/oynatma linki
-    let badge: String   // "popular", "new" veya "" (boş string)
-    let order: Int      // Sıralama numarası
-}
-```
-
-### Nasıl Çekilmeli?
-Uygulama açıldığında veya Story Mode sayfasına girildiğinde, yeni oluşturulan `getStorySliders` API endpoint'ine bir GET isteği atarak slider'ları alabilirsiniz. Slider'lar otomatik olarak `order` değerine göre küçükten büyüğe sıralanmış olarak gelir.
-
-- **Endpoint URL:** `https://us-central1-mini-games-9a4e1.cloudfunctions.net/getStorySliders`
+- **URL:** `https://us-central1-mini-games-9a4e1.cloudfunctions.net/getStorySliders`
 - **Method:** `GET`
+- **Auth:** None required
 
-**Örnek JSON Yanıtı:**
+### Response Model
+
 ```json
 {
   "success": true,
-  "count": 2,
+  "count": 6,
   "sliders": [
     {
       "id": "slider_1",
-      "type": "image",
+      "type": "video",
+      "url": "https://storage.googleapis.com/.../slider_1.mp4",
       "badge": "popular",
-      "url": "https://storage.googleapis.com/.../slider_1.jpg",
       "order": 1
     },
     {
       "id": "slider_2",
-      "type": "video",
+      "type": "image",
+      "url": "https://storage.googleapis.com/.../slider_2.jpg",
       "badge": "",
-      "url": "https://storage.googleapis.com/.../slider_2.mp4",
       "order": 2
     }
   ]
 }
 ```
 
-**Örnek Swift Kodu (Moya veya URLSession ile):**
+### Swift Data Model
+
+```swift
+struct StorySliderResponse: Codable {
+    let success: Bool
+    let count: Int
+    let sliders: [StorySlider]
+}
+
+struct StorySlider: Identifiable, Codable {
+    let id: String
+    let type: String    // "video" or "image"
+    let url: String     // Direct download/playback URL
+    let badge: String   // "popular", "new", or "" (empty)
+    let order: Int      // Display order (ascending)
+}
+```
+
+### Fetching Sliders
+
 ```swift
 func fetchStorySliders() {
     let url = URL(string: "https://us-central1-mini-games-9a4e1.cloudfunctions.net/getStorySliders")!
@@ -61,30 +66,35 @@ func fetchStorySliders() {
     URLSession.shared.dataTask(with: url) { data, response, error in
         guard let data = data, error == nil else { return }
         
-        // Response modelinize göre decode edin
-        // let response = try? JSONDecoder().decode(StorySliderResponse.self, from: data)
-        // DispatchQueue.main.async { self.sliders = response.sliders }
+        let response = try? JSONDecoder().decode(StorySliderResponse.self, from: data)
+        DispatchQueue.main.async {
+            self.sliders = response?.sliders ?? []
+        }
     }.resume()
 }
 ```
 
-### Animasyon ve Gösterim İpuçları
-- `type == "video"` ise arka planda sessiz ve looping (sürekli başa saran) bir `AVPlayer` veya standart bir `VideoPlayer` kullanabilirsiniz.
-- `badge` alanı boş değilse, slider kartının sol veya sağ üst köşesinde küçük bir "New" veya "Popular" etiketi basabilirsiniz.
+### Display Notes
 
+| Field | Usage |
+|-------|-------|
+| `type == "video"` | Use `AVPlayer` with muted looping playback |
+| `type == "image"` | Use `AsyncImage` or cached image loader |
+| `badge != ""` | Show a small label (e.g. "New", "Popular") on the top corner of the slider card |
+| `order` | Already sorted ascending from the API — no client-side sorting needed |
 
 ---
 
-## 2. Oyunlara Özel Rozetler (Game Badges)
+## 2. Game Badges (Per-Story Badges)
 
-Slider'ın altında listelenen hikaye oyunları (Kayıp Anılar, Dijital Bilinç vb.) için de artık rozet (badge) desteği backend tarafına eklendi.
+Each story game (e.g. "Lost Memories", "Digital Consciousness") can now carry badges like `"new"` or `"popular"`.
 
-### Firestore Yolu
-- **Collection Adı:** `gameStories` (Zaten kullanıyorsunuz)
+### Firestore Path
+- **Collection:** `gameStories` (existing)
 
-### Değişen Veri Modeli (SwiftUI)
+### Updated Swift Model
 
-Mevcut `GameStory` modelinize sadece opsiyonel bir `badges` dizisi eklemeniz yeterli:
+Add the optional `badges` array to your existing `GameStory` model:
 
 ```swift
 struct GameStory: Identifiable, Codable {
@@ -97,16 +107,31 @@ struct GameStory: Identifiable, Codable {
     let themeColors: [String]
     let order: Int
     
-    // YENİ EKLENEN ALAN
-    let badges: [String]? // Örnek: ["new", "popular"]
+    // NEW FIELD
+    let badges: [String]?  // e.g. ["new", "popular"]
     
-    // (levels ve events özellikleriniz aynı kalıyor...)
+    // (levels, events, etc. remain unchanged)
 }
 ```
 
-### Gösterim İpuçları
-Bir oyunun kartını çizerken `badges` dizisini kontrol edebilirsiniz. Eğer dizi `nil` değilse ve içi doluysa, ilk rozeti veya tüm rozetleri yatay bir şeklide oyun kartının köşesine ekleyebilirsiniz. Örnek: `if let badges = story.badges, badges.contains("new") { // Yeni etiketi çiz }`
+### Display Notes
+
+- If `badges` is not nil and not empty, render small tag(s) on the game card corner.
+- Example check: `if let badges = story.badges, badges.contains("new") { /* show "New" tag */ }`
+- Supported badge values: `"new"`, `"popular"` (more can be added later from the backend without app updates).
 
 ---
-### Not: Güncelleme Nasıl Yapılıyor? (Geliştirici Bilgisi)
-Storage tarafına eklediğiniz yeni medya dosyalarını database'e geçirmek için backend tarafında `seedStories` komutu kullanılmaktadır. Story Sliders tamamen otomatik olarak Firebase Storage içindeki `story_sliders/` klasöründen taranıp `storySliders` koleksiyonuna dönüştürülmektedir.
+
+## 3. Backend Management (Developer Info)
+
+### How Sliders Are Managed
+1. Upload media files to Firebase Storage under the `story_sliders/` folder (e.g. `slider_1.mp4`, `slider_2.jpg`).
+2. Call the `seedStories` endpoint to auto-scan the folder and write each file as a document in the `storySliders` Firestore collection.
+3. Badge assignment is based on filename: `slider_1` → `"popular"`, `slider_4` → `"new"`, others → `""`.
+
+### Seed Endpoint
+```
+GET https://us-central1-mini-games-9a4e1.cloudfunctions.net/seedStories
+```
+
+This endpoint handles both story seeding **and** slider seeding in a single call.

@@ -24,6 +24,11 @@ async function resolveImageURLs(story: GameStory): Promise<GameStory> {
 
     const [files] = await bucket.getFiles({ prefix });
 
+    functions.logger.info(`[resolveImageURLs] Story: ${story.id}, Bucket: ${bucket.name}, Prefix: ${prefix}, Files found: ${files.length}`);
+    for (const f of files) {
+        functions.logger.info(`  -> ${f.name}`);
+    }
+
     // Clone the story so we don't mutate the original
     const resolved: GameStory = JSON.parse(JSON.stringify(story));
 
@@ -99,6 +104,14 @@ export const seedStories = functions.https.onRequest(async (_req, res) => {
     try {
         const db = admin.firestore();
         const batch = db.batch();
+
+        // First, make ALL story_assets files public
+        const mainBucket = admin.storage().bucket();
+        const [allAssetFiles] = await mainBucket.getFiles({ prefix: "story_assets/" });
+        functions.logger.info(`Making ${allAssetFiles.length} story asset files public...`);
+        for (const file of allAssetFiles) {
+            try { await file.makePublic(); } catch (_e) { /* already public */ }
+        }
 
         // Resolve image URLs for each story
         const resolvedStories: GameStory[] = [];
