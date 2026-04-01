@@ -39,7 +39,8 @@ export { getSlitherlinkLevels } from "./getSlitherlinkLevels";
 export { seedNeuralLinkLevels } from "./seedNeuralLinkLevels";
 export { getNeuralLinkLevels } from "./getNeuralLinkLevels";
 export { getAvatars, createProfile, updateProfile, getProfile, checkDevice } from "./userProfile";
-export { getOnboardings } from "./getOnboardings";
+export { getOnboardings, manageOnboarding } from "./getOnboardings";
+export { seedOnboardings } from "./seedOnboardings";
 export {
     getDailyChallenge,
     submitDailyPuzzle,
