@@ -16,7 +16,7 @@ const nlStory01: GameStory = {
     title: "Kayıp Anılar",
     subtitle: "Travma sonrası hafıza onarımı",
     icon: "brain.head.profile",
-    coverImageURL: null,
+    coverImageURL: "https://firebasestorage.googleapis.com/v0/b/mini-games-9a4e1.appspot.com/o/story_assets%2Fnl_story_01%2Fcover.png?alt=media",
     themeColors: ["#00E5FF", "#AA00FF"],
     order: 1,
     levels: [
@@ -129,7 +129,7 @@ const nlStory02: GameStory = {
     title: "Dijital Bilinç",
     subtitle: "Yapay zekâ uyanış protokolü",
     icon: "cpu",
-    coverImageURL: null,
+    coverImageURL: "https://firebasestorage.googleapis.com/v0/b/mini-games-9a4e1.appspot.com/o/story_assets%2Fnl_story_02%2Fcover.png?alt=media",
     themeColors: ["#76FF03", "#00BFA5"],
     order: 2,
     levels: [
@@ -243,7 +243,7 @@ const nlStory03: GameStory = {
     title: "The Last Gallery",
     subtitle: "Bir sanat galerisinde cinayet, sahtekârlık ve ihanet",
     icon: "paintpalette",
-    coverImageURL: null,
+    coverImageURL: "https://firebasestorage.googleapis.com/v0/b/mini-games-9a4e1.appspot.com/o/story_assets%2Fnl_story_03%2Fcover.png?alt=media",
     themeColors: ["#B71C1C", "#1A1A2E"],
     order: 3,
     levels: [
@@ -491,7 +491,7 @@ const nlStory04: GameStory = {
     title: "Shattered Mind",
     subtitle: "A detective investigates a murder… while his own memories begin to collapse.",
     icon: "magnifyingglass",
-    coverImageURL: null,
+    coverImageURL: "https://firebasestorage.googleapis.com/v0/b/mini-games-9a4e1.appspot.com/o/story_assets%2Fnl_story_04%2Fcover.png?alt=media",
     themeColors: ["#37474F", "#B71C1C"],
     order: 4,
     levels: [
@@ -789,7 +789,7 @@ const peStory01: GameStory = {
     title: "Kayıp Medeniyet",
     subtitle: "Antik bir şehrin dijital kazısı",
     icon: "building.columns",
-    coverImageURL: null,
+    coverImageURL: "https://firebasestorage.googleapis.com/v0/b/mini-games-9a4e1.appspot.com/o/story_assets%2Fpe_story_01%2Fcover.png?alt=media",
     themeColors: ["#FFD54F", "#FF6F00"],
     order: 1,
     levels: [
@@ -912,7 +912,7 @@ const peStory02: GameStory = {
     title: "Buzun Altında",
     subtitle: "Antarktika'daki donmuş sırlar",
     icon: "snowflake",
-    coverImageURL: null,
+    coverImageURL: "https://firebasestorage.googleapis.com/v0/b/mini-games-9a4e1.appspot.com/o/story_assets%2Fpe_story_02%2Fcover.png?alt=media",
     themeColors: ["#80DEEA", "#1A237E"],
     order: 2,
     levels: [
