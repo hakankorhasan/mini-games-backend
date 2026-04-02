@@ -28,7 +28,7 @@ export const allGames: Game[] = [
     },
     {
         id: "hiddenPair",
-        name: "Hidden Pair",
+        name: "Memory",
         subtitle: "Find matching pairs from memory",
         gameType: ".hiddenPair",
         hasStoryMode: false,
@@ -39,8 +39,8 @@ export const allGames: Game[] = [
 
     {
         id: "pixelExcavation",
-        name: "Pixel Excavation",
-        subtitle: "Uncover hidden pixel art layer by layer",
+        name: "Nonogram",
+        subtitle: "Fill the grid using number clues",
         gameType: ".nonogram",
         hasStoryMode: true,
         requiresPro: false,
@@ -49,7 +49,7 @@ export const allGames: Game[] = [
     },
     {
         id: "slitherlink",
-        name: "Slitherlink",
+        name: "Link Circuit",
         subtitle: "Draw a single loop following the clues",
         gameType: ".slitherlink",
         hasStoryMode: false,
@@ -70,8 +70,8 @@ export const allGames: Game[] = [
 
     {
         id: "neuralLink",
-        name: "Neural Link",
-        subtitle: "Connect neurons to restore the brain",
+        name: "Flow",
+        subtitle: "Connect matching colors without crossing",
         gameType: ".neuralLink",
         hasStoryMode: true,
         requiresPro: false,
@@ -80,8 +80,8 @@ export const allGames: Game[] = [
     },
     {
         id: "galacticBeacons",
-        name: "Galactic Beacons",
-        subtitle: "Star Battle bulmaca",
+        name: "Star Battle",
+        subtitle: "Place stars in each region and row",
         gameType: ".galacticBeacons",
         hasStoryMode: true,
         requiresPro: false,
@@ -90,8 +90,8 @@ export const allGames: Game[] = [
     },
     {
         id: "numberCircuit",
-        name: "Number Circuit",
-        subtitle: "Connect numbers. Build equations. Reach the target.",
+        name: "Math Matrix",
+        subtitle: "Connect numbers to reach the target",
         gameType: ".numberCircuit",
         hasStoryMode: false,
         requiresPro: false,
@@ -100,7 +100,7 @@ export const allGames: Game[] = [
     },
     {
         id: "wordPuzzle",
-        name: "Word Puzzle",
+        name: "Wordle",
         subtitle: "Guess the hidden word in 5 tries",
         gameType: ".wordPuzzle",
         hasStoryMode: false,

@@ -1,13 +1,13 @@
 import { GameStory } from "../types/storyTypes";
 
 /**
- * Seed data — 6 stories (4 Neural Link + 2 Pixel Excavation)
+ * Seed data — 6 stories (4 Flow + 2 Nonogram)
  * Each story has 5 progressively harder levels.
  * Each level contains one or more events.
  */
 
 // ─────────────────────────────────────────────
-// NEURAL LINK STORIES
+// FLOW STORIES
 // ─────────────────────────────────────────────
 
 const nlStory01: GameStory = {
@@ -780,7 +780,7 @@ const nlStory04: GameStory = {
 };
 
 // ─────────────────────────────────────────────
-// PIXEL EXCAVATION STORIES
+// NONOGRAM STORIES
 // ─────────────────────────────────────────────
 
 const peStory01: GameStory = {
