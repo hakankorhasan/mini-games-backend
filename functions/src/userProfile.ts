@@ -201,6 +201,14 @@ export const createProfile = functions.https.onRequest(async (req, res) => {
             avatarUrl,
             age,
             profileCompleted: true,
+            // Ensure premium field exists for all users
+            premium: userDoc.exists && userDoc.data()?.premium ? userDoc.data()!.premium : {
+                removeAds: false,
+                storyMode: false,
+                ultimateBundle: false,
+                purchases: [],
+                lastVerifiedAt: null,
+            },
             createdAt: userDoc.exists ? userDoc.data()!.createdAt : admin.firestore.FieldValue.serverTimestamp(),
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         }, { merge: true });

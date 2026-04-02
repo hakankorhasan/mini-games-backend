@@ -57,3 +57,4 @@ export {
 export { seedStarBattleLevels } from "./seedStarBattleLevels";
 export { getStarBattleLevels } from "./getStarBattleLevels";
 export { getStorySliders } from "./getStorySliders";
+export { migratePremiumField } from "./migratePremiumField";

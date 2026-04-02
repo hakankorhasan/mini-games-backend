@@ -10,6 +10,7 @@ import {
     PremiumStatus,
     PurchaseRecord,
     PRODUCT_ENTITLEMENTS,
+    PRODUCT_IDS,
     EntitlementGrant,
 } from "../types/premiumTypes";
 
@@ -155,14 +156,14 @@ export async function revokeProduct(
 
     const updatedPremium: Record<string, boolean> = {};
 
-    if (productId.includes("ultimatebundle")) {
+    if (productId === PRODUCT_IDS.ULTIMATE_BUNDLE) {
         // Ultimate Bundle revoke: check if individual products were also purchased
         const purchases: PurchaseRecord[] = data?.premium?.purchases ?? [];
         const hasIndividualRemoveAds = purchases.some(
-            (p: PurchaseRecord) => p.productId.includes("removeads") && !p.productId.includes("ultimate")
+            (p: PurchaseRecord) => p.productId === PRODUCT_IDS.REMOVE_ADS
         );
         const hasIndividualStoryMode = purchases.some(
-            (p: PurchaseRecord) => p.productId.includes("storymode") && !p.productId.includes("ultimate")
+            (p: PurchaseRecord) => p.productId === PRODUCT_IDS.STORY_MODE
         );
 
         updatedPremium["premium.ultimateBundle"] = false;

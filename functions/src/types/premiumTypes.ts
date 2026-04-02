@@ -34,9 +34,9 @@ export interface PremiumStatus {
 // ─────────────────────────────────────────────────────────
 
 export const PRODUCT_IDS = {
-    REMOVE_ADS: "com.hakankorhasan.minigamesclubs.removeads",
-    STORY_MODE: "com.hakankorhasan.minigamesclubs.storymode",
-    ULTIMATE_BUNDLE: "com.hakankorhasan.minigamesclubs.ultimatebundle",
+    REMOVE_ADS: "com.brainland.removeads",
+    STORY_MODE: "com.brainland.storymode",
+    ULTIMATE_BUNDLE: "com.brainland.ultimatebundle",
 } as const;
 
 export type ProductId = typeof PRODUCT_IDS[keyof typeof PRODUCT_IDS];
@@ -142,4 +142,5 @@ export interface AppStoreNotificationPayload {
 // Bundle ID for validation
 // ─────────────────────────────────────────────────────────
 
-export const EXPECTED_BUNDLE_ID = "com.hakankorhasan.mini-games-clubs";
+// ⚠️ Bundle ID — Xcode Target > Bundle Identifier ile eşleşmeli
+export const EXPECTED_BUNDLE_ID = "com.brainland.minigamesclub";
