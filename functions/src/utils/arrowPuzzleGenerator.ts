@@ -280,6 +280,20 @@ function generatePath(
     for (let step = 0; step < target - 1; step++) {
         const tail = cells[0];
         let nd: Direction;
+
+        // CRITICAL: First step MUST go in OPP[dir] so that the
+        // segment into the head visually matches the stream direction.
+        // If this cell is not available, reject the entire path.
+        if (step === 0) {
+            const v = DV[curDir]; // curDir = OPP[dir]
+            const nc: Cell = {x: tail.x+v.dx, y: tail.y+v.dy};
+            if (activeSet.has(ck(nc)) && !used.has(ck(nc)) && !occupied.has(ck(nc))) {
+                cells.unshift(nc); used.add(ck(nc)); /* curDir stays */ 
+                continue;
+            }
+            return null; // Can't align head direction → reject
+        }
+
         if (rand() < 0.60) {
             const ps = perps(curDir);
             nd = ps[Math.floor(rand() * ps.length)];
@@ -355,10 +369,33 @@ function tryBuild(
         for (const c of bestPath) occupied.add(ck(c));
     }
 
-    // Solution = reverse of build order.
-    // Constructive chain guarantees solvability: each stream[i] was placed
-    // to block stream[i-1], so firing in reverse order always works.
-    const solution = [...built].reverse().map(s => s.id);
+    // ─── Greedy solver: find a valid firing order and detect deadlocks ───
+    const remaining = built.map(b => ({ ...b }));
+    const solution: string[] = [];
+
+    while (remaining.length > 0) {
+        let found = false;
+        for (let i = 0; i < remaining.length; i++) {
+            const s = remaining[i];
+            // Collect all cells from OTHER remaining streams
+            const otherCells = new Set<string>();
+            for (let j = 0; j < remaining.length; j++) {
+                if (j === i) continue;
+                for (const c of remaining[j].cells) otherCells.add(ck(c));
+            }
+            // Check: head ray clear within active area?
+            const ray = headRayActive(s.cells[s.cells.length - 1], s.direction, activeSet, grid);
+            const blocked = ray.some(c => otherCells.has(ck(c)));
+            if (!blocked) {
+                solution.push(s.id);
+                remaining.splice(i, 1);
+                found = true;
+                break;
+            }
+        }
+        if (!found) return null; // DEADLOCK — reject this level
+    }
+
     const totalCells = built.reduce((s,b) => s+b.cells.length, 0);
     const streams: StreamData[] = built.map(b => ({
         id:b.id, label:b.id.replace("stream-","Stream "),
