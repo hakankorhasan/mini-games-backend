@@ -108,4 +108,14 @@ export const allGames: Game[] = [
         order: 11,
         leaderboardCoefficient: 1.0,
     },
+    {
+        id: "arrowPuzzle",
+        name: "Arrow Puzzle",
+        subtitle: "Clear all snakes from the board",
+        gameType: ".pathClearing",
+        hasStoryMode: false,
+        requiresPro: false,
+        order: 12,
+        leaderboardCoefficient: 1.3,
+    },
 ];

@@ -21,6 +21,7 @@ const VALID_GAME_IDS = [
     "galacticBeacons",
     "numberCircuit",
     "wordPuzzle",
+    "arrowPuzzle",
 ];
 
 /**

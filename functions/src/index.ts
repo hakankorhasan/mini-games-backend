@@ -56,5 +56,7 @@ export {
 } from "./notifications";
 export { seedStarBattleLevels } from "./seedStarBattleLevels";
 export { getStarBattleLevels } from "./getStarBattleLevels";
+export { seedArrowPuzzleLevels } from "./seedArrowPuzzleLevels";
+export { getArrowPuzzleLevels } from "./getArrowPuzzleLevels";
 export { getStorySliders } from "./getStorySliders";
 export { migratePremiumField } from "./migratePremiumField";
