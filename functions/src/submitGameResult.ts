@@ -94,11 +94,11 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
             const tier = getTierByScore(0); // New user, no weighted score yet
 
             let scoreGained = 0;
-            let newStreak = userDoc.exists
-                ? (userDoc.data()!.currentStreak || 0)
+            let newStreak = gameStatsDoc.exists
+                ? (gameStatsDoc.data()!.currentStreak || 0)
                 : 0;
-            let bestStreak = userDoc.exists
-                ? (userDoc.data()!.bestStreak || 0)
+            let bestStreak = gameStatsDoc.exists
+                ? (gameStatsDoc.data()!.bestStreak || 0)
                 : 0;
 
             if (!isStoryMode) {
@@ -154,8 +154,6 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
                     correctAnswers: correct ? 1 : 0,
                     globalScore: scoreGained,
                     weightedGlobalScore: playWeightedScore,
-                    currentStreak: newStreak,
-                    bestStreak: bestStreak,
                     createdAt: admin.firestore.FieldValue.serverTimestamp(),
                     lastActive: admin.firestore.FieldValue.serverTimestamp(),
                 });
@@ -183,6 +181,8 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
                         gamesPlayed: 1,
                         totalScore: scoreGained,
                         avgScore: scoreGained,
+                        currentStreak: newStreak,
+                        bestStreak: bestStreak,
                         lastPlayedAt: admin.firestore.FieldValue.serverTimestamp(),
                     });
                 }
@@ -216,8 +216,6 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
                     lastActive: admin.firestore.FieldValue.serverTimestamp(),
                 };
                 if (!isStoryMode) {
-                    updateData.currentStreak = newStreak;
-                    updateData.bestStreak = bestStreak;
                     // Always add to weighted score (cumulative)
                     updateData.weightedGlobalScore = admin.firestore.FieldValue.increment(playWeightedScore);
                 }
@@ -235,6 +233,8 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
                             totalScore: newTotalScore,
                             weightedScore: admin.firestore.FieldValue.increment(playWeightedScore),
                             avgScore: newAvg,
+                            currentStreak: newStreak,
+                            bestStreak: bestStreak,
                             lastPlayedAt: admin.firestore.FieldValue.serverTimestamp(),
                         });
                     } else {
@@ -245,6 +245,8 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
                             gamesPlayed: 1,
                             totalScore: scoreGained,
                             avgScore: scoreGained,
+                            currentStreak: newStreak,
+                            bestStreak: bestStreak,
                             lastPlayedAt: admin.firestore.FieldValue.serverTimestamp(),
                         });
                     }
@@ -299,8 +301,6 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
                 updateData.globalScore = admin.firestore.FieldValue.increment(scoreDelta);
                 // Cumulative: add this play's weighted score
                 updateData.weightedGlobalScore = admin.firestore.FieldValue.increment(playWeightedScore);
-                updateData.currentStreak = newStreak;
-                updateData.bestStreak = bestStreak;
             }
 
             transaction.update(userRef, updateData);
@@ -334,6 +334,8 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
                         gamesPlayed: newGamesPlayed,
                         totalScore: newTotalScore,
                         avgScore: newAvg,
+                        currentStreak: newStreak,
+                        bestStreak: bestStreak,
                         lastPlayedAt: admin.firestore.FieldValue.serverTimestamp(),
                     });
                 } else {
@@ -344,6 +346,8 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
                         gamesPlayed: 1,
                         totalScore: scoreGained,
                         avgScore: scoreGained,
+                        currentStreak: newStreak,
+                        bestStreak: bestStreak,
                         lastPlayedAt: admin.firestore.FieldValue.serverTimestamp(),
                     });
                 }

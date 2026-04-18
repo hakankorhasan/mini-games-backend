@@ -42,18 +42,18 @@ function getSpeedBonus(responseTime: number): number {
 
 /**
  * Streak bonus based on consecutive correct answers.
- * Capped at 10 effective streak → max 2.0x multiplier.
+ * Capped at 10 effective streak → max 1.5x multiplier.
  *
- * Formula: 1.0 + (min(streak, 10) × 0.1)
+ * Formula: 1.0 + (min(streak, 10) × 0.05)
  *
  *  0 streak → 1.0x
- *  3 streak → 1.3x
- *  5 streak → 1.5x
- * 10 streak → 2.0x (cap)
+ *  3 streak → 1.15x
+ *  5 streak → 1.25x
+ * 10 streak → 1.5x (cap)
  */
 function getStreakBonus(streak: number): number {
     const effectiveStreak = Math.min(streak, 10);
-    return 1.0 + (effectiveStreak * 0.1);
+    return 1.0 + (effectiveStreak * 0.05);
 }
 
 export function calculateGlobalScore(input: GlobalScoreInput): GlobalScoreResult {
