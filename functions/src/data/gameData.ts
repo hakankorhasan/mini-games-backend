@@ -1,7 +1,7 @@
 import { Game } from "../types/gameTypes";
 
 /**
- * Seed data — All 9 mini-games
+ * Seed data — All mini-games
  * Order matches the intended display order in the app.
  */
 
@@ -116,5 +116,15 @@ export const allGames: Game[] = [
         requiresPro: false,
         order: 13,
         leaderboardCoefficient: 1.2,
+    },
+    {
+        id: "tiltMaze",
+        name: "Tilt Maze",
+        subtitle: "Tilt the board to guide the ball to the goal",
+        gameType: ".tiltMaze",
+        hasStoryMode: false,
+        requiresPro: false,
+        order: 14,
+        leaderboardCoefficient: 1.3,
     },
 ];

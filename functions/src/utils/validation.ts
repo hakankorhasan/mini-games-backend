@@ -23,6 +23,7 @@ const VALID_GAME_IDS = [
     "arrowPuzzle",
     "liquidSort",
     "waterSort",
+    "tiltMaze",
 ];
 
 /**
@@ -61,10 +62,10 @@ export function validateGameResult(data: {
         };
     }
 
-    if (responseTime > 300) {
+    if (responseTime > 3600) {
         return {
             valid: false,
-            reason: `responseTime too high: ${responseTime}s (maximum 300s)`,
+            reason: `responseTime too high: ${responseTime}s (maximum 3600s)`,
         };
     }
 

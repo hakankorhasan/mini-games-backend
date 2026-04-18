@@ -24,6 +24,7 @@ const DEFAULT_COEFFICIENTS: Record<string, number> = {
     arrowPuzzle: 1.4,
     liquidSort: 1.2,
     waterSort: 1.2,
+    tiltMaze: 1.3,
 };
 
 /**

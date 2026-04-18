@@ -24,6 +24,7 @@ const VALID_GAME_IDS = [
     "cryptoCage",
     "neuralLink",
     "numberCircuit",
+    "tiltMaze",
 ];
 
 export const submitScore = functions.https.onRequest(async (req, res) => {
