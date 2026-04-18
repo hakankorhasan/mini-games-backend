@@ -171,41 +171,71 @@ function pickShape(level: number, size: number): { name: string; cells: Cell[] }
 // ─── Difficulty ─────────────────────────────────────────────────
 
 export function getDifficultyConfig(level: number): DifficultyConfig {
-    if (level<=5) return {
-        difficulty:"easy", gridSize:9,
+    if (level <= 3) return {
+        difficulty:"beginner", gridSize:13,
         streamCountMin:4, streamCountMax:5,
         minSolutionLength:4, maxImmediateMoves:5,
         minTurns:1, minPathLength:4, minDensity:0.25, depthLimit:10,
     };
-    if (level<=30) return {
-        difficulty:"easy", gridSize:13,
-        streamCountMin:6, streamCountMax:10,
+    if (level <= 7) return {
+        difficulty:"easy", gridSize:17,
+        streamCountMin:5, streamCountMax:7,
+        minSolutionLength:5, maxImmediateMoves:5,
+        minTurns:1, minPathLength:5, minDensity:0.25, depthLimit:12,
+    };
+    if (level <= 12) return {
+        difficulty:"intermediate", gridSize:19,
+        streamCountMin:8, streamCountMax:10,
         minSolutionLength:6, maxImmediateMoves:6,
-        minTurns:1, minPathLength:6, minDensity:0.30, depthLimit:15,
+        minTurns:1, minPathLength:5, minDensity:0.30, depthLimit:15,
     };
-    if (level<=100) return {
-        difficulty:"medium", gridSize:18,
-        streamCountMin:10, streamCountMax:16,
+    if (level <= 17) return {
+        difficulty:"medium", gridSize:22,
+        streamCountMin:11, streamCountMax:14,
+        minSolutionLength:8, maxImmediateMoves:7,
+        minTurns:1, minPathLength:6, minDensity:0.30, depthLimit:18,
+    };
+    if (level <= 27) return {
+        difficulty:"advanced", gridSize:24,
+        streamCountMin:14, streamCountMax:17,
         minSolutionLength:10, maxImmediateMoves:8,
-        minTurns:1, minPathLength:7, minDensity:0.30, depthLimit:20,
+        minTurns:1, minPathLength:6, minDensity:0.30, depthLimit:20,
     };
-    if (level<=250) return {
-        difficulty:"hard", gridSize:24,
+    if (level <= 120) return {
+        difficulty:"hard", gridSize:28,
         streamCountMin:16, streamCountMax:25,
-        minSolutionLength:14, maxImmediateMoves:10,
-        minTurns:1, minPathLength:7, minDensity:0.30, depthLimit:25,
+        minSolutionLength:12, maxImmediateMoves:10,
+        minTurns:1, minPathLength:6, minDensity:0.30, depthLimit:25,
     };
-    if (level<=400) return {
-        difficulty:"expert", gridSize:30,
-        streamCountMin:16, streamCountMax:24,
+    if (level <= 150) return {
+        difficulty:"expert", gridSize:31,
+        streamCountMin:18, streamCountMax:27,
         minSolutionLength:14, maxImmediateMoves:12,
         minTurns:1, minPathLength:7, minDensity:0.25, depthLimit:30,
     };
-    return {
-        difficulty:"master", gridSize:35,
-        streamCountMin:22, streamCountMax:32,
-        minSolutionLength:18, maxImmediateMoves:14,
+    if (level <= 200) return {
+        difficulty:"master", gridSize:34,
+        streamCountMin:20, streamCountMax:30,
+        minSolutionLength:15, maxImmediateMoves:13,
+        minTurns:1, minPathLength:7, minDensity:0.25, depthLimit:32,
+    };
+    if (level <= 250) return {
+        difficulty:"grandmaster", gridSize:37,
+        streamCountMin:23, streamCountMax:35,
+        minSolutionLength:16, maxImmediateMoves:14,
         minTurns:1, minPathLength:7, minDensity:0.25, depthLimit:35,
+    };
+    if (level <= 300) return {
+        difficulty:"legend", gridSize:40,
+        streamCountMin:26, streamCountMax:40,
+        minSolutionLength:18, maxImmediateMoves:15,
+        minTurns:1, minPathLength:7, minDensity:0.25, depthLimit:38,
+    };
+    return {
+        difficulty:"mythic", gridSize:44,
+        streamCountMin:30, streamCountMax:45,
+        minSolutionLength:20, maxImmediateMoves:16,
+        minTurns:1, minPathLength:7, minDensity:0.25, depthLimit:40,
     };
 }
 
