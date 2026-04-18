@@ -11,7 +11,6 @@ export interface ValidationResult {
 const VALID_GAME_IDS = [
     "pipeConnect",
     "laserPuzzle",
-    "hiddenPair",
     "binaryPuzzle",
     "pixelExcavation",
     "slitherlink",
@@ -22,6 +21,8 @@ const VALID_GAME_IDS = [
     "numberCircuit",
     "wordPuzzle",
     "arrowPuzzle",
+    "liquidSort",
+    "waterSort",
 ];
 
 /**

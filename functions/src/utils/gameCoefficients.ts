@@ -12,7 +12,6 @@
 const DEFAULT_COEFFICIENTS: Record<string, number> = {
     pipeConnect: 1.0,
     laserPuzzle: 1.2,
-    hiddenPair: 0.8,
 
     pixelExcavation: 1.5,
     slitherlink: 1.5,
@@ -22,6 +21,9 @@ const DEFAULT_COEFFICIENTS: Record<string, number> = {
     galacticBeacons: 1.5,
     numberCircuit: 1.2,
     wordPuzzle: 1.0,
+    arrowPuzzle: 1.4,
+    liquidSort: 1.2,
+    waterSort: 1.2,
 };
 
 /**

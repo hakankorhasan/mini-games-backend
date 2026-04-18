@@ -27,17 +27,6 @@ export const allGames: Game[] = [
         leaderboardCoefficient: 1.2,
     },
     {
-        id: "hiddenPair",
-        name: "Memory",
-        subtitle: "Find matching pairs from memory",
-        gameType: ".hiddenPair",
-        hasStoryMode: false,
-        requiresPro: false,
-        order: 3,
-        leaderboardCoefficient: 0.8,
-    },
-
-    {
         id: "pixelExcavation",
         name: "Nonogram",
         subtitle: "Fill the grid using number clues",
@@ -117,5 +106,15 @@ export const allGames: Game[] = [
         requiresPro: false,
         order: 12,
         leaderboardCoefficient: 1.3,
+    },
+    {
+        id: "liquidSort",
+        name: "Water Sort",
+        subtitle: "Sort liquids by color in tubes",
+        gameType: ".liquidSort",
+        hasStoryMode: false,
+        requiresPro: false,
+        order: 13,
+        leaderboardCoefficient: 1.2,
     },
 ];

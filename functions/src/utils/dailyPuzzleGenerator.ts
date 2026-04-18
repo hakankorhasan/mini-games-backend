@@ -41,7 +41,6 @@ export interface DailyPuzzleEntry {
 const GAME_POOL: string[] = [
     "pipeConnect",
     "laserPuzzle",
-    "hiddenPair",
     "pixelExcavation",
     "slitherlink",
     "blockFit",
