@@ -11,7 +11,7 @@ import { generateLevels } from "./utils/laserPuzzle";
  * GET/POST /seedLaserPuzzleLevels?count=200&startFrom=1
  *
  * Query params:
- *   count     — number of levels to generate (default: 200, max: 500)
+ *   count     — number of levels to generate (default: 1000, max: 1000)
  *   startFrom — starting level number (default: 1)
  */
 export const seedLaserPuzzleLevels = functions
@@ -19,8 +19,8 @@ export const seedLaserPuzzleLevels = functions
     .https.onRequest(async (req, res) => {
         try {
             const count = Math.min(
-                parseInt(req.query.count as string, 10) || 200,
-                500
+                parseInt(req.query.count as string, 10) || 1000,
+                1000
             );
             const startFrom = parseInt(req.query.startFrom as string, 10) || 1;
 

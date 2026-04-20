@@ -12,7 +12,7 @@ import { generateLevel, TOTAL_PIPE_LEVELS } from "./utils/pipeGenerator";
  * Firestore path: pipeConnectLevels/level_{N}
  */
 export const seedPipeConnectLevels = functions
-    .runWith({ timeoutSeconds: 300, memory: "512MB" })
+    .runWith({ timeoutSeconds: 540, memory: "1GB" })
     .https.onRequest(async (req, res) => {
         if (req.method !== "POST") {
             res.status(405).json({

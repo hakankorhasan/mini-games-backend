@@ -16,6 +16,8 @@ export interface GlobalScoreInput {
     currentStreak: number;   // consecutive correct answers before this game
     hintsUsed?: number;      // how many hints used
     gameId?: string;         // identifier of game (e.g. wordPuzzle)
+    isReplay?: boolean;      // if true, player replayed a previously completed level
+    level?: number;          // level number, used for logarithmic scaling instead of difficulty
 }
 
 export interface GlobalScoreResult {
@@ -42,28 +44,27 @@ function getSpeedBonus(responseTime: number): number {
 
 /**
  * Streak bonus based on consecutive correct answers.
- * Capped at 10 effective streak → max 1.5x multiplier.
+ * Capped at 10 effective streak → max 1.2x multiplier.
  *
- * Formula: 1.0 + (min(streak, 10) × 0.05)
+ * Formula: 1.0 + (min(streak, 10) × 0.02)
  *
  *  0 streak → 1.0x
- *  3 streak → 1.15x
- *  5 streak → 1.25x
- * 10 streak → 1.5x (cap)
+ *  5 streak → 1.1x
+ * 10 streak → 1.2x (cap)
  */
 function getStreakBonus(streak: number): number {
     const effectiveStreak = Math.min(streak, 10);
-    return 1.0 + (effectiveStreak * 0.05);
+    return 1.0 + (effectiveStreak * 0.02);
 }
 
 export function calculateGlobalScore(input: GlobalScoreInput): GlobalScoreResult {
-    const { difficulty, correct, responseTime, currentStreak, hintsUsed = 0, gameId } = input;
+    const { difficulty, correct, responseTime, currentStreak, hintsUsed = 0, gameId, isReplay = false, level } = input;
 
     if (!correct) {
         return { scoreGained: 0, newStreak: 0 };
     }
 
-    let basePoints = difficulty * 15;
+    let basePoints = level ? Math.floor(Math.sqrt(level) * 10) : difficulty * 15;
     
     // Hint penalty logic
     if (hintsUsed > 0) {
@@ -87,7 +88,7 @@ export function calculateGlobalScore(input: GlobalScoreInput): GlobalScoreResult
     }
 
     const speedBonus = getSpeedBonus(responseTime);
-    const newStreak = currentStreak + 1;
+    const newStreak = isReplay ? currentStreak : currentStreak + 1;
     const streakBonus = getStreakBonus(newStreak);
 
     const scoreGained = Math.round(basePoints * speedBonus * streakBonus);

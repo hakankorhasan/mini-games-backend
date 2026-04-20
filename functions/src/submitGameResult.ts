@@ -102,6 +102,9 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
                 : 0;
 
             if (!isStoryMode) {
+                // Define replay: if they've successfully beaten this exactly level before, it's a replay.
+                const isSuccessfulReplay = existingMatchDoc.exists && existingMatchDoc.data()!.correct === true;
+
                 const globalResult = calculateGlobalScore({
                     difficulty,
                     correct,
@@ -109,6 +112,8 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
                     currentStreak: newStreak,
                     hintsUsed: typeof hintsUsed === "number" ? hintsUsed : 0,
                     gameId,
+                    isReplay: isSuccessfulReplay,
+                    level,
                 });
                 scoreGained = globalResult.scoreGained;
                 newStreak = globalResult.newStreak;
