@@ -18,7 +18,6 @@ export interface GlobalScoreInput {
     hintsUsed?: number;      // how many hints used
     gameId?: string;         // identifier of game (e.g. wordPuzzle)
     isReplay?: boolean;      // if true, player replayed a previously completed level
-    level?: number;          // level number, used for logarithmic scaling instead of difficulty
 }
 
 export interface GlobalScoreResult {
@@ -59,13 +58,14 @@ function getStreakBonus(streak: number): number {
 }
 
 export function calculateGlobalScore(input: GlobalScoreInput): GlobalScoreResult {
-    const { level, difficulty, correct, responseTime, currentStreak, hintsUsed = 0, gameId } = input;
+    const { level, difficulty, correct, responseTime, currentStreak, hintsUsed = 0, gameId, isReplay = false } = input;
 
     if (!correct) {
         return { scoreGained: 0, newStreak: 0 };
     }
 
-    let basePoints = Math.round(10 + (level * 2));
+    const safeLevel = (typeof level === "number" && !isNaN(level) && level > 0) ? level : difficulty;
+    let basePoints = Math.round(10 + (safeLevel * 2));
     
     // Hint penalty logic
     if (hintsUsed > 0) {

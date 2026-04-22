@@ -58,20 +58,18 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
             return;
         }
 
-        // Validate level
+        // Validate level (relaxing to allow undefined or < 1, defaulting to 1)
+        let validLevel = level;
         if (typeof level !== "number" || level < 1 || !Number.isInteger(level)) {
-            res.status(400).json({
-                success: false,
-                error: "level must be a positive integer.",
-            });
-            return;
+            functions.logger.warn("Level missing or invalid, defaulting to 1", { level });
+            validLevel = 1;
         }
 
         const db = admin.firestore();
         const userRef = db.collection("users").doc(deviceId);
         const gameStatsRef = userRef.collection("gameStats").doc(gameId);
         // Single record per device+game+level
-        const matchResultRef = db.collection("matchResults").doc(`${deviceId}_${gameId}_lvl_${level}`);
+        const matchResultRef = db.collection("matchResults").doc(`${deviceId}_${gameId}_lvl_${validLevel}`);
 
         // 3. Transaction: read → compare → write (if improved)
         const result = await db.runTransaction(async (transaction) => {
@@ -106,7 +104,7 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
                 const isSuccessfulReplay = existingMatchDoc.exists && existingMatchDoc.data()!.correct === true;
 
                 const globalResult = calculateGlobalScore({
-                    level,
+                    level: validLevel,
                     difficulty,
                     correct,
                     responseTime,
@@ -114,7 +112,6 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
                     hintsUsed: typeof hintsUsed === "number" ? hintsUsed : 0,
                     gameId,
                     isReplay: isSuccessfulReplay,
-                    level,
                 });
                 scoreGained = globalResult.scoreGained;
                 newStreak = globalResult.newStreak;
@@ -168,7 +165,7 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
                 transaction.set(matchResultRef, {
                     deviceId,
                     gameId,
-                    level,
+                    level: validLevel,
                     difficulty,
                     correct,
                     responseTime,
@@ -315,7 +312,7 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
             transaction.set(matchResultRef, {
                 deviceId,
                 gameId,
-                level,
+                level: validLevel,
                 difficulty,
                 correct,
                 responseTime,

@@ -60,3 +60,4 @@ export { seedArrowPuzzleLevels } from "./seedArrowPuzzleLevels";
 export { getArrowPuzzleLevels } from "./getArrowPuzzleLevels";
 export { getStorySliders } from "./getStorySliders";
 export { migratePremiumField } from "./migratePremiumField";
+export { syncAllTiers } from "./syncTiers";
