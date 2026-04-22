@@ -24,6 +24,7 @@ const VALID_GAME_IDS = [
     "liquidSort",
     "waterSort",
     "tiltMaze",
+    "parkingPuzzle",
 ];
 
 /**

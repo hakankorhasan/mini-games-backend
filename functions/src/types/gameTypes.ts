@@ -9,6 +9,7 @@ export interface Game {
     id: string;                         // e.g. "neuralLink"
     name: string;                       // Display name: "Neural Link"
     subtitle: string;                   // Short description
+    description?: string;               // Optional longer description (shown in detail screen)
     gameType: string;                   // iOS enum raw value: ".neuralLink"
     hasStoryMode: boolean;              // Whether story mode is available
     requiresPro: boolean;               // Whether Pro subscription is needed

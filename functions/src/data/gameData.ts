@@ -127,4 +127,15 @@ export const allGames: Game[] = [
         order: 14,
         leaderboardCoefficient: 1.3,
     },
+    {
+        id: "parkingPuzzle",
+        name: "Parking Puzzle",
+        subtitle: "Clear the jammed parking lot without a single crash",
+        description: "A strategic puzzle game where you must clear a jammed parking lot by tapping cars to drive them out. Find the perfect exit order to clear the board without causing any collisions!",
+        gameType: ".parkingPuzzle",
+        hasStoryMode: false,
+        requiresPro: false,
+        order: 15,
+        leaderboardCoefficient: 1.3,
+    },
 ];
