@@ -16,7 +16,6 @@ import * as admin from "firebase-admin";
 const VALID_GAME_IDS = [
     "pipeConnect",
     "laserPuzzle",
-    "hiddenPair",
     "binaryPuzzle",
     "pixelExcavation",
     "slitherlink",

@@ -113,6 +113,7 @@ export const getPlayerProfile = functions.https.onRequest(async (req, res) => {
                 weightedScore: Math.round(bestScore * coefficient),
                 gamesPlayed: data.gamesPlayed || 0,
                 avgScore: data.avgScore || 0,
+                currentStreak: data.currentStreak || 0,
             };
         });
 

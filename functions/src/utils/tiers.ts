@@ -2,12 +2,12 @@
  * Tier / League system — Score-Based.
  *
  * Tiers are determined by the player's weightedGlobalScore:
- *   0 – 999       → Bronze
- *   1000 – 2999   → Silver
- *   3000 – 5999   → Gold
- *   6000 – 9999   → Platinum
- *   10000 – 14999 → Diamond
- *   15000+        → Legend
+ *   0       – 14,999   → Bronze
+ *   15,000  – 49,999   → Silver
+ *   50,000  – 149,999  → Gold
+ *   150,000 – 299,999  → Platinum
+ *   300,000 – 499,999  → Diamond
+ *   500,000+           → Legend
  *
  * Rank (#47 Global) is a separate concept — shown alongside tier
  * but does NOT affect tier determination.
@@ -22,12 +22,12 @@ interface TierThreshold {
 }
 
 const TIER_THRESHOLDS: TierThreshold[] = [
-    { name: "Bronze",   minScore: 0,     maxScore: 999 },
-    { name: "Silver",   minScore: 1000,  maxScore: 2999 },
-    { name: "Gold",     minScore: 3000,  maxScore: 5999 },
-    { name: "Platinum", minScore: 6000,  maxScore: 9999 },
-    { name: "Diamond",  minScore: 10000, maxScore: 14999 },
-    { name: "Legend",   minScore: 15000, maxScore: Infinity },
+    { name: "Bronze",   minScore: 0,       maxScore: 14999 },
+    { name: "Silver",   minScore: 15000,   maxScore: 49999 },
+    { name: "Gold",     minScore: 50000,   maxScore: 149999 },
+    { name: "Platinum", minScore: 150000,  maxScore: 299999 },
+    { name: "Diamond",  minScore: 300000,  maxScore: 499999 },
+    { name: "Legend",   minScore: 500000,  maxScore: Infinity },
 ];
 
 /**

@@ -1,7 +1,7 @@
 import { Game } from "../types/gameTypes";
 
 /**
- * Seed data — All 9 mini-games
+ * Seed data — All mini-games
  * Order matches the intended display order in the app.
  */
 
@@ -26,17 +26,6 @@ export const allGames: Game[] = [
         order: 2,
         leaderboardCoefficient: 1.2,
     },
-    {
-        id: "hiddenPair",
-        name: "Memory",
-        subtitle: "Find matching pairs from memory",
-        gameType: ".hiddenPair",
-        hasStoryMode: false,
-        requiresPro: false,
-        order: 3,
-        leaderboardCoefficient: 0.8,
-    },
-
     {
         id: "pixelExcavation",
         name: "Nonogram",
@@ -116,6 +105,26 @@ export const allGames: Game[] = [
         hasStoryMode: false,
         requiresPro: false,
         order: 12,
+        leaderboardCoefficient: 1.3,
+    },
+    {
+        id: "liquidSort",
+        name: "Water Sort",
+        subtitle: "Sort liquids by color in tubes",
+        gameType: ".liquidSort",
+        hasStoryMode: false,
+        requiresPro: false,
+        order: 13,
+        leaderboardCoefficient: 1.2,
+    },
+    {
+        id: "tiltMaze",
+        name: "Tilt Maze",
+        subtitle: "Tilt the board to guide the ball to the goal",
+        gameType: ".tiltMaze",
+        hasStoryMode: false,
+        requiresPro: false,
+        order: 14,
         leaderboardCoefficient: 1.3,
     },
 ];

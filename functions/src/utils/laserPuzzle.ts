@@ -100,18 +100,15 @@ export function angleForReflection(incoming: Direction, outgoing: Direction): nu
  *   321–500 10×10 Master II: 10 mirrors, max density, all dangers
  */
 export function getDifficultyConfig(levelNumber: number): DifficultyConfig {
-    // ── 5×5 Warm-up (1–15) ──
-    // 3 solution mirrors + 55-65% decoy fill → 8+ total mirrors visible
-    // Walls appear at level 10+
-    if (levelNumber <= 15) {
-        const t = (levelNumber - 1) / 14;
+    if (levelNumber <= 5) {
+        const t = (levelNumber - 1) / 4;
         return {
             gridSize: 5,
             mirrorCount: 3,
-            wallCount: levelNumber >= 10 ? 1 : 0,
+            wallCount: 1,
             lives: 5,
             fixedMirrorCount: 0,
-            decoyFillFraction: 0.55 + t * 0.10,   // 0.55→0.65
+            decoyFillFraction: 0.55 + t * 0.10,
             portalPairCount: 0,
             bombCount: 0,
             splitterCount: 0,
@@ -119,89 +116,79 @@ export function getDifficultyConfig(levelNumber: number): DifficultyConfig {
         };
     }
 
-    // ── 5×5 Challenge (16–40) ──
-    // 4 solution mirrors, walls ramp, portal at level 30+
-    if (levelNumber <= 40) {
-        const t = (levelNumber - 16) / 24;
+    if (levelNumber <= 15) {
+        const t = (levelNumber - 6) / 9;
         return {
-            gridSize: 5,
+            gridSize: 6,
             mirrorCount: 4,
-            wallCount: 1 + Math.round(t),              // 1→2
+            wallCount: 1 + Math.round(t),
             lives: 4,
-            fixedMirrorCount: t > 0.5 ? 1 : 0,         // fixed mirror at lvl 29+
-            decoyFillFraction: 0.60 + t * 0.10,        // 0.60→0.70
-            portalPairCount: levelNumber >= 30 ? 1 : 0,
+            fixedMirrorCount: 0,
+            decoyFillFraction: 0.60 + t * 0.10,
+            portalPairCount: levelNumber >= 10 ? 1 : 0,
             bombCount: 0,
             splitterCount: 0,
             difficulty: "intermediate",
         };
     }
 
-    // ── 6×6 Standard (41–80) ──
-    // Grid grows, mirror count 4→5, walls + portal, bombs at end
-    if (levelNumber <= 80) {
-        const t = (levelNumber - 41) / 39;
-        return {
-            gridSize: 6,
-            mirrorCount: 4 + Math.round(t),            // 4→5
-            wallCount: 1 + Math.round(t),              // 1→2
-            lives: 4,
-            fixedMirrorCount: 1,
-            decoyFillFraction: 0.50 + t * 0.10,        // 0.50→0.60
-            portalPairCount: 1,
-            bombCount: levelNumber >= 65 ? 1 : 0,       // bombs at lvl 65+
-            splitterCount: 0,
-            difficulty: "intermediate",
-        };
-    }
-
-    // ── 7×7 Advanced (81–140) ──
-    // 5→6 mirrors, bombs ramp up, more walls
-    if (levelNumber <= 140) {
-        const t = (levelNumber - 81) / 59;
+    if (levelNumber <= 30) {
+        const t = (levelNumber - 16) / 14;
         return {
             gridSize: 7,
-            mirrorCount: 5 + Math.round(t),            // 5→6
-            wallCount: 2 + Math.round(t),              // 2→3
-            lives: 3,
+            mirrorCount: 4 + Math.round(t),
+            wallCount: 2 + Math.round(t),
+            lives: 4,
             fixedMirrorCount: 1,
-            decoyFillFraction: 0.50 + t * 0.10,        // 0.50→0.60
+            decoyFillFraction: 0.50 + t * 0.10,
             portalPairCount: 1,
-            bombCount: 1 + Math.round(t),              // 1→2
+            bombCount: levelNumber >= 20 ? 1 : 0,
             splitterCount: 0,
             difficulty: "advanced",
         };
     }
 
-    // ── 8×8 Expert (141–220) ──
-    // 6→8 mirrors, 2 portals, splitter at end, high decoy
-    if (levelNumber <= 220) {
-        const t = (levelNumber - 141) / 79;
+    if (levelNumber <= 50) {
+        const t = (levelNumber - 31) / 19;
         return {
             gridSize: 8,
-            mirrorCount: 6 + Math.round(t * 2),        // 6→8
-            wallCount: 3 + Math.round(t),              // 3→4
-            lives: 2,
-            fixedMirrorCount: 2,
-            decoyFillFraction: 0.55 + t * 0.10,        // 0.55→0.65
-            portalPairCount: 1 + (t > 0.5 ? 1 : 0),   // 1→2 at lvl 181+
-            bombCount: 2,
-            splitterCount: levelNumber >= 200 ? 1 : 0,  // splitter at 200+
+            mirrorCount: 5 + Math.round(t * 2), // 5 -> 7
+            wallCount: 3 + Math.round(t * 2),   // 3 -> 5
+            lives: 3,
+            fixedMirrorCount: 1,
+            decoyFillFraction: 0.55 + t * 0.10,
+            portalPairCount: 1,
+            bombCount: 1 + Math.round(t), // 1 -> 2
+            splitterCount: levelNumber >= 40 ? 1 : 0,
             difficulty: "expert",
         };
     }
 
-    // ── 9×9 Master I (221–320) ──
-    // 8→9 mirrors, full mechanics, high density
-    if (levelNumber <= 320) {
-        const t = (levelNumber - 221) / 99;
+    if (levelNumber <= 80) {
+        const t = (levelNumber - 51) / 29;
         return {
             gridSize: 9,
-            mirrorCount: 8 + Math.round(t),            // 8→9
-            wallCount: 4 + Math.round(t),              // 4→5
-            lives: 1,
+            mirrorCount: 7 + Math.round(t * 2), // 7 -> 9
+            wallCount: 5 + Math.round(t * 2),   // 5 -> 7
+            lives: 2,
+            fixedMirrorCount: 2,
+            decoyFillFraction: 0.60 + t * 0.10,
+            portalPairCount: 2,
+            bombCount: 2 + Math.round(t), // 2 -> 3
+            splitterCount: 1,
+            difficulty: "master",
+        };
+    }
+
+    if (levelNumber <= 120) {
+        const t = (levelNumber - 81) / 39;
+        return {
+            gridSize: 10,
+            mirrorCount: 9 + Math.round(t * 2), // 9 -> 11
+            wallCount: 7 + Math.round(t),       // 7 -> 8
+            lives: 2,
             fixedMirrorCount: 3,
-            decoyFillFraction: 0.65 + t * 0.10,        // 0.65→0.75
+            decoyFillFraction: 0.65 + t * 0.10,
             portalPairCount: 2,
             bombCount: 3,
             splitterCount: 1,
@@ -209,18 +196,33 @@ export function getDifficultyConfig(levelNumber: number): DifficultyConfig {
         };
     }
 
-    // ── 10×10 Master II (321–500+) ──
-    // Max everything, plateau
+    if (levelNumber <= 170) {
+        const t = (levelNumber - 121) / 49;
+        return {
+            gridSize: 11,
+            mirrorCount: 11 + Math.round(t * 2), // 11 -> 13
+            wallCount: 8 + Math.round(t),        // 8 -> 9
+            lives: 1,
+            fixedMirrorCount: 4,
+            decoyFillFraction: 0.70 + t * 0.10,
+            portalPairCount: 3,
+            bombCount: 4,
+            splitterCount: 2,
+            difficulty: "master",
+        };
+    }
+
+    // 171 - 1000+
     return {
-        gridSize: 10,
-        mirrorCount: 10,
-        wallCount: 5,
+        gridSize: 12,
+        mirrorCount: 14,
+        wallCount: 10,
         lives: 1,
-        fixedMirrorCount: 3,
-        decoyFillFraction: 0.80,
-        portalPairCount: 2,
-        bombCount: 3,
-        splitterCount: 1,
+        fixedMirrorCount: 4,
+        decoyFillFraction: 0.85,
+        portalPairCount: 3,
+        bombCount: 4,
+        splitterCount: 2,
         difficulty: "master",
     };
 }

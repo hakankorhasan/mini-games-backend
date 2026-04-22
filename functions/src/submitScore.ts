@@ -17,7 +17,6 @@ import * as admin from "firebase-admin";
 const VALID_GAME_IDS = [
     "pipeConnect",
     "laserPuzzle",
-    "hiddenPair",
     "binaryPuzzle",
     "pixelExcavation",
     "slitherlink",
@@ -25,6 +24,7 @@ const VALID_GAME_IDS = [
     "cryptoCage",
     "neuralLink",
     "numberCircuit",
+    "tiltMaze",
 ];
 
 export const submitScore = functions.https.onRequest(async (req, res) => {
