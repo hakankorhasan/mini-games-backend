@@ -10,7 +10,8 @@
  */
 
 export interface GlobalScoreInput {
-    difficulty: number;      // 1–10
+    level: number;           // now using level for base points
+    difficulty: number;      // 1–10 (retained for hint penalty scaling)
     correct: boolean;
     responseTime: number;    // seconds
     currentStreak: number;   // consecutive correct answers before this game
@@ -25,45 +26,44 @@ export interface GlobalScoreResult {
 
 /**
  * Speed bonus based on response time.
- * Faster responses get a higher multiplier (1.0x – 2.5x).
+ * Faster responses get a higher multiplier (1.0x – 1.5x).
  *
- * Formula: max(1.0, 2.5 − (responseTime / 20))
+ * Formula: max(1.0, 1.5 − (responseTime / 40))
  *
- *  1s  → 2.45x
- *  5s  → 2.25x
- *  10s → 2.0x
- *  20s → 1.5x
- *  30s → 1.0x (floor)
+ *  1s  → 1.47x
+ *  5s  → 1.37x
+ *  10s → 1.25x
+ *  20s → 1.0x (floor)
  */
 function getSpeedBonus(responseTime: number): number {
-    const bonus = 2.5 - (responseTime / 20);
+    const bonus = 1.5 - (responseTime / 40);
     return Math.max(1.0, Math.round(bonus * 100) / 100);
 }
 
 /**
  * Streak bonus based on consecutive correct answers.
- * Capped at 10 effective streak → max 2.0x multiplier.
+ * Capped at 10 effective streak → max 1.5x multiplier.
  *
- * Formula: 1.0 + (min(streak, 10) × 0.1)
+ * Formula: 1.0 + (min(streak, 10) × 0.05)
  *
  *  0 streak → 1.0x
- *  3 streak → 1.3x
- *  5 streak → 1.5x
- * 10 streak → 2.0x (cap)
+ *  3 streak → 1.15x
+ *  5 streak → 1.25x
+ * 10 streak → 1.5x (cap)
  */
 function getStreakBonus(streak: number): number {
     const effectiveStreak = Math.min(streak, 10);
-    return 1.0 + (effectiveStreak * 0.1);
+    return 1.0 + (effectiveStreak * 0.05);
 }
 
 export function calculateGlobalScore(input: GlobalScoreInput): GlobalScoreResult {
-    const { difficulty, correct, responseTime, currentStreak, hintsUsed = 0, gameId } = input;
+    const { level, difficulty, correct, responseTime, currentStreak, hintsUsed = 0, gameId } = input;
 
     if (!correct) {
         return { scoreGained: 0, newStreak: 0 };
     }
 
-    let basePoints = difficulty * 15;
+    let basePoints = Math.round(10 + (level * 2));
     
     // Hint penalty logic
     if (hintsUsed > 0) {

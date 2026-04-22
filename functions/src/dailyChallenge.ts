@@ -246,6 +246,7 @@ export const submitDailyPuzzle = functions.https.onRequest(async (req, res) => {
 
             // ── Calculate puzzle score ──
             const { scoreGained } = calculateGlobalScore({
+                level: difficulty * 5, // Approximate level for Daily Challenge puzzles
                 difficulty,
                 correct,
                 responseTime,

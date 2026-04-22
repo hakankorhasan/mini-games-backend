@@ -120,25 +120,23 @@ export const BLOCK_TEMPLATES: BlockTemplate[] = [
 export function getDifficultyConfig(levelNumber: number): BlockFitDifficultyConfig {
     // ── Tier 1: Beginner I (1–40) ──
     if (levelNumber <= 40) {
-        const t = (levelNumber - 1) / 39;
         return {
             difficulty: "beginner",
             difficultyValue: 1,
             gridSize: GRID_SIZE,
-            targetScore: Math.round(25 + t * 35),    // 25→60
-            maxBlockIndex: 8,                          // single, domino, triomino
+            targetScore: 100 + (levelNumber - 1) * 10,  // 100→490
+            maxBlockIndex: 8,                            // single, domino, triomino
             prefillRows: 0,
         };
     }
 
     // ── Tier 2: Beginner II (41–100) ──
     if (levelNumber <= 100) {
-        const t = (levelNumber - 41) / 59;
         return {
             difficulty: "beginner",
             difficultyValue: 2,
             gridSize: GRID_SIZE,
-            targetScore: Math.round(60 + t * 40),    // 60→100
+            targetScore: 100 + (levelNumber - 1) * 10,  // 500→1090
             maxBlockIndex: 8,
             prefillRows: 0,
         };
@@ -146,13 +144,12 @@ export function getDifficultyConfig(levelNumber: number): BlockFitDifficultyConf
 
     // ── Tier 3: Intermediate I (101–180) ──
     if (levelNumber <= 180) {
-        const t = (levelNumber - 101) / 79;
         return {
             difficulty: "intermediate",
             difficultyValue: 3,
             gridSize: GRID_SIZE,
-            targetScore: Math.round(80 + t * 50),    // 80→130
-            maxBlockIndex: 16,                         // + tetromino
+            targetScore: 100 + (levelNumber - 1) * 10,  // 1100→1890
+            maxBlockIndex: 16,                           // + tetromino
             prefillRows: 0,
         };
     }
@@ -164,7 +161,7 @@ export function getDifficultyConfig(levelNumber: number): BlockFitDifficultyConf
             difficulty: "intermediate",
             difficultyValue: 4,
             gridSize: GRID_SIZE,
-            targetScore: Math.round(120 + t * 60),   // 120→180
+            targetScore: 100 + (levelNumber - 1) * 10,  // 1900→2890
             maxBlockIndex: 16,
             prefillRows: t < 0.5 ? 0 : 1,
         };
@@ -177,8 +174,8 @@ export function getDifficultyConfig(levelNumber: number): BlockFitDifficultyConf
             difficulty: "advanced",
             difficultyValue: 5,
             gridSize: GRID_SIZE,
-            targetScore: Math.round(160 + t * 70),   // 160→230
-            maxBlockIndex: 22,                         // + pentomino
+            targetScore: 100 + (levelNumber - 1) * 10,  // 2900→3990
+            maxBlockIndex: 22,                           // + pentomino
             prefillRows: t < 0.4 ? 0 : 1,
         };
     }
@@ -190,8 +187,8 @@ export function getDifficultyConfig(levelNumber: number): BlockFitDifficultyConf
             difficulty: "advanced",
             difficultyValue: 6,
             gridSize: GRID_SIZE,
-            targetScore: Math.round(220 + t * 80),   // 220→300
-            maxBlockIndex: 23,                         // + 2×2 block
+            targetScore: 100 + (levelNumber - 1) * 10,  // 4000→4990
+            maxBlockIndex: 23,                           // + 2×2 block
             prefillRows: t < 0.5 ? 1 : 2,
         };
     }
@@ -203,21 +200,20 @@ export function getDifficultyConfig(levelNumber: number): BlockFitDifficultyConf
             difficulty: "expert",
             difficultyValue: 7,
             gridSize: GRID_SIZE,
-            targetScore: Math.round(280 + t * 100),  // 280→380
-            maxBlockIndex: 26,                         // + corners
+            targetScore: 100 + (levelNumber - 1) * 10,  // 5000→6190
+            maxBlockIndex: 26,                           // + corners
             prefillRows: t < 0.4 ? 1 : 2,
         };
     }
 
     // ── Tier 8: Expert II (621–750) ──
     if (levelNumber <= 750) {
-        const t = (levelNumber - 621) / 129;
         return {
             difficulty: "expert",
             difficultyValue: 8,
             gridSize: GRID_SIZE,
-            targetScore: Math.round(350 + t * 100),  // 350→450
-            maxBlockIndex: 28,                         // all shapes
+            targetScore: 100 + (levelNumber - 1) * 10,  // 6200→7490
+            maxBlockIndex: 28,                           // all shapes
             prefillRows: 2,
         };
     }
@@ -229,7 +225,7 @@ export function getDifficultyConfig(levelNumber: number): BlockFitDifficultyConf
             difficulty: "master",
             difficultyValue: 9,
             gridSize: GRID_SIZE,
-            targetScore: Math.round(420 + t * 130),  // 420→550
+            targetScore: 100 + (levelNumber - 1) * 10,  // 7500→8790
             maxBlockIndex: 28,
             prefillRows: t < 0.5 ? 2 : 3,
         };
@@ -241,7 +237,7 @@ export function getDifficultyConfig(levelNumber: number): BlockFitDifficultyConf
         difficulty: "master",
         difficultyValue: 10,
         gridSize: GRID_SIZE,
-        targetScore: Math.round(500 + t * 200),      // 500→700
+        targetScore: 100 + (levelNumber - 1) * 10,  // 8800→10090
         maxBlockIndex: 28,
         prefillRows: t < 0.4 ? 3 : 4,
     };

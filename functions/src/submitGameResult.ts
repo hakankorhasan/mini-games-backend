@@ -103,6 +103,7 @@ export const submitGameResult = functions.https.onRequest(async (req, res) => {
 
             if (!isStoryMode) {
                 const globalResult = calculateGlobalScore({
+                    level,
                     difficulty,
                     correct,
                     responseTime,
