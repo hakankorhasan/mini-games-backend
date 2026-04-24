@@ -23,7 +23,10 @@ export const seedNeuralLinkLevels = functions
             let totalSeeded = 0;
             const failedLevels: number[] = [];
 
-            for (let lvl = 1; lvl <= TOTAL_NEURAL_LINK_LEVELS; lvl++) {
+            const startFrom = parseInt(req.query.startFrom as string) || 1;
+            const endAt = parseInt(req.query.endAt as string) || TOTAL_NEURAL_LINK_LEVELS;
+
+            for (let lvl = startFrom; lvl <= endAt; lvl++) {
                 let level = null;
                 for (let attempt = 0; attempt < 10; attempt++) {
                     level = generateLevel(lvl);

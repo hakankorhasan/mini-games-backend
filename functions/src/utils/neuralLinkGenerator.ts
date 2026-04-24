@@ -117,10 +117,38 @@ const LEVEL_TIERS: TierDef[] = [
         difficultyRange: [11, 12],
         flowRange: [10, 12], deadRange: [8, 12],
         minPathMult: [0.6, 0.7],
+    },
+    {
+        minLevel: 501, maxLevel: 650,
+        gridSize: 13, difficulty: "ultra",
+        difficultyRange: [12, 13],
+        flowRange: [11, 13], deadRange: [9, 14],
+        minPathMult: [0.55, 0.65],
+    },
+    {
+        minLevel: 651, maxLevel: 750,
+        gridSize: 13, difficulty: "extreme",
+        difficultyRange: [13, 14],
+        flowRange: [12, 14], deadRange: [12, 16],
+        minPathMult: [0.55, 0.65],
+    },
+    {
+        minLevel: 751, maxLevel: 900,
+        gridSize: 14, difficulty: "nightmare",
+        difficultyRange: [14, 15],
+        flowRange: [13, 15], deadRange: [14, 18],
+        minPathMult: [0.5, 0.6],
+    },
+    {
+        minLevel: 901, maxLevel: 1000,
+        gridSize: 14, difficulty: "transcendent",
+        difficultyRange: [15, 16],
+        flowRange: [14, 16], deadRange: [16, 20],
+        minPathMult: [0.5, 0.6],
     }
 ];
 
-export const TOTAL_NEURAL_LINK_LEVELS = 500;
+export const TOTAL_NEURAL_LINK_LEVELS = 1000;
 
 // ─── Config ──────────────────────────────────────────────
 
@@ -454,9 +482,20 @@ export function generateLevel(levelNumber: number): NeuralLinkLevel | null {
     let deadCount = config.deadCount;
     let minPathMult = config.minPathMultiplier;
 
+    // Large grids need fewer attempts per relax level to avoid timeout
+    const isLargeGrid = n >= 13;
+    const maxRelax = isLargeGrid ? 6 : 4;
+    const attemptsPerRelax = isLargeGrid ? 20 : 60;
+
+    // For large grids, start with slightly relaxed constraints
+    if (isLargeGrid) {
+        deadCount = Math.max(1, deadCount - 2);
+        minPathMult = Math.max(0.4, minPathMult - 0.1);
+    }
+
     // Try with full config first, then relax constraints if needed
-    for (let relaxLevel = 0; relaxLevel < 4; relaxLevel++) {
-        for (let attempt = 0; attempt < 60; attempt++) {
+    for (let relaxLevel = 0; relaxLevel < maxRelax; relaxLevel++) {
+        for (let attempt = 0; attempt < attemptsPerRelax; attempt++) {
             const result = generateFlowPaths(n, config.flowCount, deadCount, minPathMult);
             if (!result) continue;
 
